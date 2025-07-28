@@ -89,6 +89,39 @@ export type Database = {
           },
         ]
       }
+      file_uploads: {
+        Row: {
+          created_at: string
+          file_type: string
+          filename: string
+          id: string
+          records_count: number
+          updated_at: string
+          upload_date: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_type: string
+          filename: string
+          id?: string
+          records_count?: number
+          updated_at?: string
+          upload_date?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_type?: string
+          filename?: string
+          id?: string
+          records_count?: number
+          updated_at?: string
+          upload_date?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       registered_clients: {
         Row: {
           address: string | null
@@ -97,6 +130,7 @@ export type Database = {
           created_at: string
           customer_id: string
           district: string | null
+          file_upload_id: string | null
           id: string
           mobile_number: string
           name: string
@@ -113,6 +147,7 @@ export type Database = {
           created_at?: string
           customer_id: string
           district?: string | null
+          file_upload_id?: string | null
           id?: string
           mobile_number: string
           name: string
@@ -129,6 +164,7 @@ export type Database = {
           created_at?: string
           customer_id?: string
           district?: string | null
+          file_upload_id?: string | null
           id?: string
           mobile_number?: string
           name?: string
@@ -138,7 +174,15 @@ export type Database = {
           updated_at?: string
           ward?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "registered_clients_file_upload_id_fkey"
+            columns: ["file_upload_id"]
+            isOneToOne: false
+            referencedRelation: "file_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

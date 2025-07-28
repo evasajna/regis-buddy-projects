@@ -12,6 +12,7 @@ import * as XLSX from 'xlsx';
 const DataUpload = () => {
   const [uploading, setUploading] = useState(false);
   const [clients, setClients] = useState<any[]>([]);
+  const [fileUploads, setFileUploads] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -19,7 +20,22 @@ const DataUpload = () => {
   // Fetch clients on component mount
   useEffect(() => {
     fetchClients();
+    fetchFileUploads();
   }, []);
+
+  const fetchFileUploads = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("file_uploads")
+        .select("*")
+        .order("upload_date", { ascending: false });
+
+      if (error) throw error;
+      setFileUploads(data || []);
+    } catch (error) {
+      console.error("Error fetching file uploads:", error);
+    }
+  };
 
   const fetchClients = async () => {
     setLoading(true);
@@ -140,10 +156,29 @@ const DataUpload = () => {
         return;
       }
 
+      // First, create a file upload record
+      const { data: fileUploadData, error: fileUploadError } = await supabase
+        .from("file_uploads")
+        .insert({
+          filename: file.name,
+          records_count: clientsData.length,
+          file_type: file.name.endsWith('.csv') ? 'CSV' : 'Excel'
+        })
+        .select()
+        .single();
+
+      if (fileUploadError) throw fileUploadError;
+
+      // Add file_upload_id to each client record
+      const clientsWithFileId = clientsData.map(client => ({
+        ...client,
+        file_upload_id: fileUploadData.id
+      }));
+
       // Insert data in batches
       const { error } = await supabase
         .from("registered_clients")
-        .upsert(clientsData, { 
+        .upsert(clientsWithFileId, { 
           onConflict: 'customer_id',
           ignoreDuplicates: false 
         });
@@ -156,6 +191,7 @@ const DataUpload = () => {
       });
 
       fetchClients();
+      fetchFileUploads();
     } catch (error) {
       console.error("Error uploading file:", error);
       toast({
@@ -192,6 +228,41 @@ const DataUpload = () => {
         variant: "destructive",
         title: "Error",
         description: "Failed to delete client record"
+      });
+    }
+  };
+
+  const deleteEntireFile = async (fileUploadId: string, filename: string) => {
+    try {
+      // Delete all client records associated with this file
+      const { error: clientsError } = await supabase
+        .from("registered_clients")
+        .delete()
+        .eq("file_upload_id", fileUploadId);
+
+      if (clientsError) throw clientsError;
+
+      // Delete the file upload record (this will cascade delete clients due to foreign key)
+      const { error: fileError } = await supabase
+        .from("file_uploads")
+        .delete()
+        .eq("id", fileUploadId);
+
+      if (fileError) throw fileError;
+
+      toast({
+        title: "File Deleted",
+        description: `Successfully deleted ${filename} and all its records`
+      });
+
+      fetchClients();
+      fetchFileUploads();
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete file and its records"
       });
     }
   };
@@ -243,6 +314,54 @@ const DataUpload = () => {
           <div className="text-sm text-muted-foreground">
             <p>Expected columns: Customer ID, Name, Mobile Number, Address, Category, Panchayath, District, Ward, Agent/PRO, Preference, Status</p>
           </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>File Upload History ({fileUploads.length})</CardTitle>
+          <CardDescription>Track uploaded files and manage them</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {fileUploads.length > 0 ? (
+            <div className="rounded-md border overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Filename</TableHead>
+                    <TableHead>Upload Date</TableHead>
+                    <TableHead>File Type</TableHead>
+                    <TableHead>Records</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {fileUploads.map((fileUpload) => (
+                    <TableRow key={fileUpload.id}>
+                      <TableCell className="font-medium">{fileUpload.filename}</TableCell>
+                      <TableCell>{new Date(fileUpload.upload_date).toLocaleString()}</TableCell>
+                      <TableCell>{fileUpload.file_type}</TableCell>
+                      <TableCell>{fileUpload.records_count}</TableCell>
+                      <TableCell>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => deleteEntireFile(fileUpload.id, fileUpload.filename)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete File
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <p className="text-center text-muted-foreground py-8">
+              No files uploaded yet.
+            </p>
+          )}
         </CardContent>
       </Card>
 
