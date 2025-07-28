@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Upload, FileSpreadsheet, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import * as XLSX from 'xlsx';
 
 const DataUpload = () => {
   const [uploading, setUploading] = useState(false);
@@ -52,10 +53,23 @@ const DataUpload = () => {
 
     setUploading(true);
     try {
-      const text = await file.text();
-      const lines = text.split('\n').filter(line => line.trim());
+      let data: any[][] = [];
       
-      if (lines.length < 2) {
+      // Handle different file types
+      if (file.name.endsWith('.csv')) {
+        const text = await file.text();
+        const lines = text.split('\n').filter(line => line.trim());
+        data = lines.map(line => line.split(',').map(cell => cell.trim().replace(/"/g, '')));
+      } else {
+        // Handle Excel files (.xlsx, .xls)
+        const arrayBuffer = await file.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        data = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      }
+      
+      if (data.length < 2) {
         toast({
           variant: "destructive",
           title: "Invalid File",
@@ -64,15 +78,14 @@ const DataUpload = () => {
         return;
       }
 
-      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-      const dataRows = lines.slice(1);
+      const headers = data[0].map((h: any) => String(h || '').trim());
+      const dataRows = data.slice(1);
 
       const clientsData = dataRows.map(row => {
-        const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
         const client: any = {};
         
         headers.forEach((header, index) => {
-          const value = values[index] || '';
+          const value = String(row[index] || '').trim();
           switch (header.toLowerCase()) {
             case 'customer id':
               client.customer_id = value;
