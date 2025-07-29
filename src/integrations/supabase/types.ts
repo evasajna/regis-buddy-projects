@@ -89,87 +89,6 @@ export type Database = {
           },
         ]
       }
-      file_uploads: {
-        Row: {
-          created_at: string
-          file_type: string
-          filename: string
-          id: string
-          records_count: number
-          updated_at: string
-          upload_date: string
-          uploaded_by: string | null
-        }
-        Insert: {
-          created_at?: string
-          file_type: string
-          filename: string
-          id?: string
-          records_count?: number
-          updated_at?: string
-          upload_date?: string
-          uploaded_by?: string | null
-        }
-        Update: {
-          created_at?: string
-          file_type?: string
-          filename?: string
-          id?: string
-          records_count?: number
-          updated_at?: string
-          upload_date?: string
-          uploaded_by?: string | null
-        }
-        Relationships: []
-      }
-      programs: {
-        Row: {
-          category_id: string
-          conditions: string | null
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-          sub_project_id: string | null
-          updated_at: string
-        }
-        Insert: {
-          category_id: string
-          conditions?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          name: string
-          sub_project_id?: string | null
-          updated_at?: string
-        }
-        Update: {
-          category_id?: string
-          conditions?: string | null
-          created_at?: string
-          description?: string | null
-          id?: string
-          name?: string
-          sub_project_id?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_programs_category"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "employment_categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_programs_sub_project"
-            columns: ["sub_project_id"]
-            isOneToOne: false
-            referencedRelation: "sub_projects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       registered_clients: {
         Row: {
           address: string | null
@@ -178,7 +97,6 @@ export type Database = {
           created_at: string
           customer_id: string
           district: string | null
-          file_upload_id: string | null
           id: string
           mobile_number: string
           name: string
@@ -195,7 +113,6 @@ export type Database = {
           created_at?: string
           customer_id: string
           district?: string | null
-          file_upload_id?: string | null
           id?: string
           mobile_number: string
           name: string
@@ -212,7 +129,6 @@ export type Database = {
           created_at?: string
           customer_id?: string
           district?: string | null
-          file_upload_id?: string | null
           id?: string
           mobile_number?: string
           name?: string
@@ -222,47 +138,7 @@ export type Database = {
           updated_at?: string
           ward?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "registered_clients_file_upload_id_fkey"
-            columns: ["file_upload_id"]
-            isOneToOne: false
-            referencedRelation: "file_uploads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      sub_projects: {
-        Row: {
-          category_id: string
-          created_at: string
-          id: string
-          name: string
-          updated_at: string
-        }
-        Insert: {
-          category_id: string
-          created_at?: string
-          id?: string
-          name: string
-          updated_at?: string
-        }
-        Update: {
-          category_id?: string
-          created_at?: string
-          id?: string
-          name?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fk_sub_projects_category"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "employment_categories"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
