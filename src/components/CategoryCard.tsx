@@ -47,7 +47,7 @@ const CategoryCard = ({
   };
 
   return (
-    <Card className="w-full">
+    <Card className="w-full transition-all duration-300 hover:shadow-lg hover:scale-[1.02] border-l-4 border-l-primary/20 hover:border-l-primary bg-gradient-to-r from-card to-card/50 hover:from-primary/5 hover:to-accent/5">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex-1">
