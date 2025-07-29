@@ -28,7 +28,7 @@ const DataUpload = () => {
       const { data, error } = await supabase
         .from("file_uploads")
         .select("*")
-        .order("upload_date", { ascending: false });
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
       setFileUploads(data || []);
@@ -161,24 +161,23 @@ const DataUpload = () => {
         .from("file_uploads")
         .insert({
           filename: file.name,
-          records_count: clientsData.length,
-          file_type: file.name.endsWith('.csv') ? 'CSV' : 'Excel'
+          file_path: `/uploads/${file.name}`,
+          file_size: file.size,
+          mime_type: file.type,
+          uploaded_by: 'admin'
         })
         .select()
         .single();
 
       if (fileUploadError) throw fileUploadError;
 
-      // Add file_upload_id to each client record
-      const clientsWithFileId = clientsData.map(client => ({
-        ...client,
-        file_upload_id: fileUploadData.id
-      }));
+      // Insert clients without file_upload_id reference since it doesn't exist in registered_clients
+      const validClients = clientsData;
 
       // Insert data in batches
       const { error } = await supabase
         .from("registered_clients")
-        .upsert(clientsWithFileId, { 
+        .upsert(validClients, { 
           onConflict: 'customer_id',
           ignoreDuplicates: false 
         });
@@ -234,15 +233,7 @@ const DataUpload = () => {
 
   const deleteEntireFile = async (fileUploadId: string, filename: string) => {
     try {
-      // Delete all client records associated with this file
-      const { error: clientsError } = await supabase
-        .from("registered_clients")
-        .delete()
-        .eq("file_upload_id", fileUploadId);
-
-      if (clientsError) throw clientsError;
-
-      // Delete the file upload record (this will cascade delete clients due to foreign key)
+      // Delete the file upload record
       const { error: fileError } = await supabase
         .from("file_uploads")
         .delete()
@@ -252,17 +243,16 @@ const DataUpload = () => {
 
       toast({
         title: "File Deleted",
-        description: `Successfully deleted ${filename} and all its records`
+        description: `Successfully deleted ${filename}`
       });
 
-      fetchClients();
       fetchFileUploads();
     } catch (error) {
       console.error("Error deleting file:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to delete file and its records"
+        description: "Failed to delete file"
       });
     }
   };
@@ -331,7 +321,7 @@ const DataUpload = () => {
                     <TableHead>Filename</TableHead>
                     <TableHead>Upload Date</TableHead>
                     <TableHead>File Type</TableHead>
-                    <TableHead>Records</TableHead>
+                    <TableHead>File Size</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -339,9 +329,9 @@ const DataUpload = () => {
                   {fileUploads.map((fileUpload) => (
                     <TableRow key={fileUpload.id}>
                       <TableCell className="font-medium">{fileUpload.filename}</TableCell>
-                      <TableCell>{new Date(fileUpload.upload_date).toLocaleString()}</TableCell>
-                      <TableCell>{fileUpload.file_type}</TableCell>
-                      <TableCell>{fileUpload.records_count}</TableCell>
+                      <TableCell>{new Date(fileUpload.created_at).toLocaleString()}</TableCell>
+                      <TableCell>{fileUpload.mime_type}</TableCell>
+                      <TableCell>{fileUpload.file_size} bytes</TableCell>
                       <TableCell>
                         <Button
                           variant="destructive"

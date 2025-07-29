@@ -176,6 +176,37 @@ const CheckRegistration = () => {
     }
   };
 
+  const applyForProgram = async (programId: string, programName: string) => {
+    if (!clientData) return;
+    
+    try {
+      const { error } = await supabase
+        .from('employment_registrations')
+        .insert({
+          client_id: clientData.id,
+          category_id: programId,
+          mobile_number: clientData.mobile_number
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Application Submitted",
+        description: `Your application for "${programName}" has been submitted successfully.`,
+      });
+
+      // Refresh registrations to show the new application
+      checkRegistrations();
+    } catch (error) {
+      console.error('Error applying for program:', error);
+      toast({
+        title: "Application Failed",
+        description: "Failed to submit your application. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const reset = () => {
     setMobileNumber("");
     setRegistrations([]);
@@ -343,7 +374,11 @@ const CheckRegistration = () => {
                                     <p className="text-sm text-muted-foreground">{program.conditions}</p>
                                   </div>
                                 )}
-                                <Button size="sm" className="w-full">
+                                <Button 
+                                  size="sm" 
+                                  className="w-full"
+                                  onClick={() => applyForProgram(program.category_id, program.name)}
+                                >
                                   Apply for this Program
                                 </Button>
                               </CardContent>
