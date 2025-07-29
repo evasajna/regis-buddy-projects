@@ -126,7 +126,7 @@ const EmploymentRegistration = () => {
     if (!clientData) return false;
     
     // Job card holders can apply for any category
-    if (clientData.category === "jobcard") return true;
+    if (clientData.category?.toLowerCase().includes("job card")) return true;
     
     // Others can only apply for their specific category
     return clientData.category === categoryName;

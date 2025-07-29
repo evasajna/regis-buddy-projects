@@ -31,15 +31,49 @@ const CheckRegistration = () => {
           )
         `);
 
-      // Qualification logic: if category shows "job card", can apply to all programs
-      // otherwise limited to specific category programs
-      if (client.category?.toLowerCase() !== 'job card') {
-        // Find the employment category that matches the client's category
+      // Qualification logic based on client category
+      const category = client.category?.toLowerCase();
+      
+      if (category?.includes('job card')) {
+        // Job Card holders can see all programs from all categories
+        // No filter needed - show all programs
+      } else if (category?.includes('foodelife')) {
+        // Show only foodelife programs
         const { data: categories } = await supabase
           .from('employment_categories')
           .select('id')
-          .ilike('name', `%${client.category}%`);
-
+          .eq('name', 'foodelife');
+        
+        if (categories && categories.length > 0) {
+          programsQuery = programsQuery.eq('category_id', categories[0].id);
+        }
+      } else if (category?.includes('entrelife')) {
+        // Show only entrelife programs
+        const { data: categories } = await supabase
+          .from('employment_categories')
+          .select('id')
+          .eq('name', 'entrelife');
+        
+        if (categories && categories.length > 0) {
+          programsQuery = programsQuery.eq('category_id', categories[0].id);
+        }
+      } else if (category?.includes('organelife')) {
+        // Show only organelife programs
+        const { data: categories } = await supabase
+          .from('employment_categories')
+          .select('id')
+          .eq('name', 'organelife');
+        
+        if (categories && categories.length > 0) {
+          programsQuery = programsQuery.eq('category_id', categories[0].id);
+        }
+      } else if (category?.includes('farmelife')) {
+        // Show only farmelife programs
+        const { data: categories } = await supabase
+          .from('employment_categories')
+          .select('id')
+          .eq('name', 'farmelife');
+        
         if (categories && categories.length > 0) {
           programsQuery = programsQuery.eq('category_id', categories[0].id);
         }
@@ -100,6 +134,14 @@ const CheckRegistration = () => {
       if (regsError) throw regsError;
 
       setRegistrations(regs || []);
+
+      // Check if this is a Job Card holder and enforce one registration limit
+      if (client.category?.toLowerCase().includes('job card') && regs && regs.length > 0) {
+        toast({
+          title: "Registration Status",
+          description: `Job Card holders can only have one registration at a time. You already have ${regs.length} registration(s).`
+        });
+      }
 
       // Fetch available programs based on qualification
       await fetchAvailablePrograms(client);
@@ -187,8 +229,8 @@ const CheckRegistration = () => {
                     <CardTitle className="text-lg">Personal Details</CardTitle>
                     <CardDescription>
                       Your qualification: <Badge variant="outline">{clientData.category}</Badge>
-                      {clientData.category?.toLowerCase() === 'job card' ? (
-                        <span className="text-green-600 ml-2">✓ Can apply to all programs</span>
+                      {clientData.category?.toLowerCase().includes('job card') ? (
+                        <span className="text-green-600 ml-2">✓ Can apply to all programs (Job Card holder)</span>
                       ) : (
                         <span className="text-amber-600 ml-2">⚠ Limited to category-specific programs</span>
                       )}
