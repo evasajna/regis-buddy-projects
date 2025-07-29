@@ -122,6 +122,39 @@ export type Database = {
         }
         Relationships: []
       }
+      programs: {
+        Row: {
+          category_id: string
+          conditions: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          sub_project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          conditions?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          sub_project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          conditions?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          sub_project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       registered_clients: {
         Row: {
           address: string | null
@@ -183,6 +216,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      sub_projects: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
