@@ -34,8 +34,8 @@ const CheckRegistration = () => {
       // Qualification logic based on client category
       const category = client.category?.toLowerCase();
       
-      if (category?.includes('job card')) {
-        // Job Card holders can see all programs from all categories
+      if (category?.includes('job card') || category?.includes('others')) {
+        // Job Card holders (now called "Others") can see all programs from all categories
         // No filter needed - show all programs
       } else if (category?.includes('foodelife')) {
         // Show only foodelife programs
@@ -135,11 +135,12 @@ const CheckRegistration = () => {
 
       setRegistrations(regs || []);
 
-      // Check if this is a Job Card holder and enforce one registration limit
-      if (client.category?.toLowerCase().includes('job card') && regs && regs.length > 0) {
+      // Check if this is a special qualification holder (Job Card/Others) and enforce one registration limit
+      if ((client.category?.toLowerCase().includes('job card') || 
+           client.category?.toLowerCase().includes('others')) && regs && regs.length > 0) {
         toast({
           title: "Registration Status",
-          description: `Job Card holders can only have one registration at a time. You already have ${regs.length} registration(s).`
+          description: `Special qualification holders can only have one registration at a time. You already have ${regs.length} registration(s).`
         });
       }
 
@@ -229,8 +230,9 @@ const CheckRegistration = () => {
                     <CardTitle className="text-lg">Personal Details</CardTitle>
                     <CardDescription>
                       Your qualification: <Badge variant="outline">{clientData.category}</Badge>
-                      {clientData.category?.toLowerCase().includes('job card') ? (
-                        <span className="text-green-600 ml-2">✓ Can apply to all programs (Job Card holder)</span>
+                      {(clientData.category?.toLowerCase().includes('job card') || 
+                        clientData.category?.toLowerCase().includes('others')) ? (
+                        <span className="text-green-600 ml-2">✓ Can apply to all programs (Special qualification)</span>
                       ) : (
                         <span className="text-amber-600 ml-2">⚠ Limited to category-specific programs</span>
                       )}
