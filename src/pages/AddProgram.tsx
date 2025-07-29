@@ -133,7 +133,7 @@ const AddProgram = () => {
         description: formData.description,
         conditions: formData.conditions,
         category_id: formData.categoryId,
-        sub_project_id: formData.subProjectId || null,
+        sub_project_id: formData.subProjectId === "none" ? null : formData.subProjectId || null,
       };
 
       if (editId) {
@@ -257,7 +257,7 @@ const AddProgram = () => {
                   <SelectValue placeholder="Select sub-project (optional)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {subProjects.map((subProject) => (
                     <SelectItem key={subProject.id} value={subProject.id}>
                       {subProject.name}
