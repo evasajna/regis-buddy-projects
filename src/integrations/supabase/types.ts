@@ -153,7 +153,22 @@ export type Database = {
           sub_project_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_programs_category"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "employment_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_programs_sub_project"
+            columns: ["sub_project_id"]
+            isOneToOne: false
+            referencedRelation: "sub_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       registered_clients: {
         Row: {
@@ -239,7 +254,15 @@ export type Database = {
           name?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_sub_projects_category"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "employment_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

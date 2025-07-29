@@ -61,12 +61,7 @@ const CategoryDetails = () => {
       // Fetch programs for this category
       const { data: programsData, error: programsError } = await supabase
         .from('programs')
-        .select(`
-          *,
-          sub_projects (
-            name
-          )
-        `)
+        .select('*')
         .eq('category_id', categoryId);
 
       if (programsError) throw programsError;

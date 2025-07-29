@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -11,8 +12,48 @@ const CheckRegistration = () => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [clientData, setClientData] = useState<any>(null);
+  const [availablePrograms, setAvailablePrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const fetchAvailablePrograms = async (client: any) => {
+    try {
+      let programsQuery = supabase
+        .from('programs')
+        .select(`
+          *,
+          employment_categories (
+            name,
+            description
+          ),
+          sub_projects (
+            name
+          )
+        `);
+
+      // Qualification logic: if category shows "job card", can apply to all programs
+      // otherwise limited to specific category programs
+      if (client.category?.toLowerCase() !== 'job card') {
+        // Find the employment category that matches the client's category
+        const { data: categories } = await supabase
+          .from('employment_categories')
+          .select('id')
+          .ilike('name', `%${client.category}%`);
+
+        if (categories && categories.length > 0) {
+          programsQuery = programsQuery.eq('category_id', categories[0].id);
+        }
+      }
+
+      const { data: programs, error } = await programsQuery;
+
+      if (error) throw error;
+      setAvailablePrograms(programs || []);
+    } catch (error) {
+      console.error('Error fetching available programs:', error);
+      setAvailablePrograms([]);
+    }
+  };
 
   const checkRegistrations = async () => {
     if (!mobileNumber) {
@@ -59,6 +100,9 @@ const CheckRegistration = () => {
       if (regsError) throw regsError;
 
       setRegistrations(regs || []);
+
+      // Fetch available programs based on qualification
+      await fetchAvailablePrograms(client);
       
       toast({
         title: "Records Found",
@@ -93,6 +137,7 @@ const CheckRegistration = () => {
     setMobileNumber("");
     setRegistrations([]);
     setClientData(null);
+    setAvailablePrograms([]);
   };
 
   return (
@@ -129,83 +174,152 @@ const CheckRegistration = () => {
           </div>
 
           {clientData && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Personal Details</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                    <p className="font-medium">{clientData.name}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Customer ID</Label>
-                    <p className="font-medium">{clientData.customer_id}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Category</Label>
-                    <p className="font-medium">{clientData.category}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">District</Label>
-                    <p className="font-medium">{clientData.district}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Panchayath</Label>
-                    <p className="font-medium">{clientData.panchayath}</p>
-                  </div>
-                  <div>
-                    <Label className="text-sm font-medium text-muted-foreground">Agent/PRO</Label>
-                    <p className="font-medium">{clientData.agent_pro}</p>
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label className="text-sm font-medium text-muted-foreground">Address</Label>
-                    <p className="font-medium">{clientData.address}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+            <Tabs defaultValue="details" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="details">Personal Details</TabsTrigger>
+                <TabsTrigger value="registrations">My Registrations ({registrations.length})</TabsTrigger>
+                <TabsTrigger value="programs">Available Programs ({availablePrograms.length})</TabsTrigger>
+              </TabsList>
 
-          {registrations.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Employment Registrations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {registrations.map((reg) => (
-                    <div key={reg.id} className="border rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <div>
-                          <h3 className="font-semibold">{reg.employment_categories?.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {reg.employment_categories?.description}
-                          </p>
-                        </div>
-                        <Badge className={getStatusColor(reg.status)}>
-                          {reg.status}
-                        </Badge>
+              <TabsContent value="details" className="space-y-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Personal Details</CardTitle>
+                    <CardDescription>
+                      Your qualification: <Badge variant="outline">{clientData.category}</Badge>
+                      {clientData.category?.toLowerCase() === 'job card' ? (
+                        <span className="text-green-600 ml-2">✓ Can apply to all programs</span>
+                      ) : (
+                        <span className="text-amber-600 ml-2">⚠ Limited to category-specific programs</span>
+                      )}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Name</Label>
+                        <p className="font-medium">{clientData.name}</p>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        <p>Registration Date: {new Date(reg.registration_date).toLocaleDateString()}</p>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Customer ID</Label>
+                        <p className="font-medium">{clientData.customer_id}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Category</Label>
+                        <p className="font-medium">{clientData.category}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">District</Label>
+                        <p className="font-medium">{clientData.district}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Panchayath</Label>
+                        <p className="font-medium">{clientData.panchayath}</p>
+                      </div>
+                      <div>
+                        <Label className="text-sm font-medium text-muted-foreground">Agent/PRO</Label>
+                        <p className="font-medium">{clientData.agent_pro}</p>
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label className="text-sm font-medium text-muted-foreground">Address</Label>
+                        <p className="font-medium">{clientData.address}</p>
                       </div>
                     </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-          {clientData && registrations.length === 0 && (
-            <Card>
-              <CardContent className="text-center py-8">
-                <p className="text-muted-foreground">
-                  No employment registrations found. You can register for employment opportunities.
-                </p>
-              </CardContent>
-            </Card>
+              <TabsContent value="registrations" className="space-y-4">
+                {registrations.length > 0 ? (
+                  <div className="space-y-4">
+                    {registrations.map((reg) => (
+                      <Card key={reg.id}>
+                        <CardContent className="pt-6">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h3 className="font-semibold">{reg.employment_categories?.name}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {reg.employment_categories?.description}
+                              </p>
+                            </div>
+                            <Badge className={getStatusColor(reg.status)}>
+                              {reg.status}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            <p>Registration Date: {new Date(reg.registration_date).toLocaleDateString()}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="text-center py-8">
+                      <p className="text-muted-foreground">
+                        No employment registrations found. Check the Available Programs tab to see what you can apply for.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+
+              <TabsContent value="programs" className="space-y-4">
+                {availablePrograms.length > 0 ? (
+                  <div className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Programs You Can Apply For</CardTitle>
+                        <CardDescription>
+                          Based on your qualification ({clientData.category}), these programs are available to you.
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {availablePrograms.map((program) => (
+                            <Card key={program.id} className="border-2 border-dashed border-primary/20">
+                              <CardHeader>
+                                <CardTitle className="text-base">{program.name}</CardTitle>
+                                <div className="flex gap-2">
+                                  <Badge variant="secondary">{program.employment_categories?.name}</Badge>
+                                  {program.sub_projects && (
+                                    <Badge variant="outline">{program.sub_projects.name}</Badge>
+                                  )}
+                                </div>
+                              </CardHeader>
+                              <CardContent>
+                                {program.description && (
+                                  <p className="text-sm text-muted-foreground mb-3">
+                                    {program.description}
+                                  </p>
+                                )}
+                                {program.conditions && (
+                                  <div className="mb-3">
+                                    <Label className="text-sm font-medium">Conditions:</Label>
+                                    <p className="text-sm text-muted-foreground">{program.conditions}</p>
+                                  </div>
+                                )}
+                                <Button size="sm" className="w-full">
+                                  Apply for this Program
+                                </Button>
+                              </CardContent>
+                            </Card>
+                          ))}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  <Card>
+                    <CardContent className="text-center py-8">
+                      <p className="text-muted-foreground">
+                        No programs available for your qualification ({clientData.category}).
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </TabsContent>
+            </Tabs>
           )}
         </CardContent>
       </Card>
