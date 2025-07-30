@@ -215,6 +215,35 @@ const RegistrationsView = () => {
     }
   };
 
+  const deleteRegistration = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this registration? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("employment_registrations")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Registration deleted successfully"
+      });
+
+      fetchRegistrations();
+    } catch (error) {
+      console.error("Error deleting registration:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete registration"
+      });
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "approved":
@@ -427,7 +456,7 @@ const RegistrationsView = () => {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 flex-wrap">
                           {registration.status === "pending" && (
                             <>
                               <Button
@@ -457,6 +486,14 @@ const RegistrationsView = () => {
                               Reset
                             </Button>
                           )}
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 border-red-600 hover:bg-red-50"
+                            onClick={() => deleteRegistration(registration.id)}
+                          >
+                            Delete
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>

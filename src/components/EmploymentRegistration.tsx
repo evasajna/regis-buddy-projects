@@ -77,7 +77,7 @@ const EmploymentRegistration = () => {
 
     setLoading(true);
     try {
-      // Check if already registered
+      // Check if already registered for this category
       const { data: existingReg } = await supabase
         .from("employment_registrations")
         .select("*")
@@ -89,6 +89,22 @@ const EmploymentRegistration = () => {
           variant: "destructive",
           title: "Already Registered",
           description: "You have already registered for this category."
+        });
+        return;
+      }
+
+      // Check for dual registration prevention using mobile number
+      const { data: allRegistrations } = await supabase
+        .from("employment_registrations")
+        .select("*")
+        .eq("mobile_number", mobileNumber)
+        .neq("status", "rejected"); // Only count non-rejected registrations
+
+      if (allRegistrations && allRegistrations.length > 0) {
+        toast({
+          variant: "destructive",
+          title: "Registration Limit Reached",
+          description: "You can only have one active registration at a time. Please contact admin to pause your existing registration before applying for a new program."
         });
         return;
       }

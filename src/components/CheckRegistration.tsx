@@ -119,7 +119,7 @@ const CheckRegistration = () => {
 
       setClientData(client);
 
-      // Get employment registrations
+      // Get employment registrations with program details
       const { data: regs, error: regsError } = await supabase
         .from("employment_registrations")
         .select(`
@@ -133,7 +133,32 @@ const CheckRegistration = () => {
 
       if (regsError) throw regsError;
 
-      setRegistrations(regs || []);
+      // For each registration, get the programs that match the category
+      const registrationsWithPrograms = await Promise.all(
+        (regs || []).map(async (reg) => {
+          if (reg.category_id) {
+            const { data: programs } = await supabase
+              .from("programs")
+              .select(`
+                name,
+                description,
+                conditions,
+                sub_projects (
+                  name
+                )
+              `)
+              .eq("category_id", reg.category_id);
+            
+            return {
+              ...reg,
+              available_programs: programs || []
+            };
+          }
+          return reg;
+        })
+      );
+
+      setRegistrations(registrationsWithPrograms || []);
 
       // Check if this is a special qualification holder (Job Card/Others) and enforce one registration limit
       if ((client.category?.toLowerCase().includes('job card') || 
@@ -180,6 +205,22 @@ const CheckRegistration = () => {
     if (!clientData) return;
     
     try {
+      // Check for dual registration prevention using mobile number
+      const { data: existingRegistrations } = await supabase
+        .from("employment_registrations")
+        .select("*")
+        .eq("mobile_number", clientData.mobile_number)
+        .neq("status", "rejected"); // Only count non-rejected registrations
+
+      if (existingRegistrations && existingRegistrations.length > 0) {
+        toast({
+          variant: "destructive",
+          title: "Registration Limit Reached",
+          description: "You can only have one active registration at a time. Please contact admin to pause your existing registration before applying for a new program."
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('employment_registrations')
         .insert({
@@ -333,6 +374,28 @@ const CheckRegistration = () => {
                               </p>
                             </div>
                           </div>
+
+                          {reg.available_programs && reg.available_programs.length > 0 && (
+                            <div className="mb-4 p-3 bg-blue-50 rounded-lg">
+                              <h4 className="font-medium text-sm mb-2">Available Programs for this Category:</h4>
+                              <div className="space-y-2">
+                                {reg.available_programs.map((program, index) => (
+                                  <div key={index} className="border border-blue-200 p-2 rounded bg-white">
+                                    <h5 className="font-medium text-sm text-blue-800">{program.name}</h5>
+                                    {program.description && (
+                                      <p className="text-xs text-muted-foreground mt-1">{program.description}</p>
+                                    )}
+                                    {program.conditions && (
+                                      <p className="text-xs text-orange-600 mt-1">Conditions: {program.conditions}</p>
+                                    )}
+                                    {program.sub_projects && (
+                                      <p className="text-xs text-purple-600 mt-1">Sub-project: {program.sub_projects.name}</p>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           
                           <div className="text-sm text-muted-foreground">
                             <p>Registration Date: {new Date(reg.registration_date).toLocaleDateString()}</p>
