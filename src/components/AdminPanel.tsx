@@ -272,43 +272,127 @@ const ApplicationsOverview = () => {
 const AdminPanel = () => {
   return (
     <div className="container mx-auto p-6">
-      <div className="mb-6">
-        <h2 className="text-3xl font-bold text-primary">Admin Panel</h2>
-        <p className="text-muted-foreground">Manage the self-employment registration system</p>
+      <div className="mb-8">
+        <h2 className="text-4xl font-bold text-primary mb-2">Admin Panel</h2>
+        <p className="text-lg text-muted-foreground">Comprehensive management system for self-employment registration</p>
       </div>
 
       <Tabs defaultValue="applications" className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="applications">Applications Overview</TabsTrigger>
-          <TabsTrigger value="uploads">Registered Data Uploads</TabsTrigger>
-          <TabsTrigger value="categories">Employment Categories</TabsTrigger>
-          <TabsTrigger value="registrations">Registrations</TabsTrigger>
-          <TabsTrigger value="stop-requests">Stop Requests</TabsTrigger>
-          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-6">
+          <TabsTrigger value="applications" className="text-sm">
+            📊 Applications
+          </TabsTrigger>
+          <TabsTrigger value="registrations" className="text-sm">
+            👥 Registrations
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="text-sm">
+            🔔 Notifications
+          </TabsTrigger>
+          <TabsTrigger value="categories" className="text-sm">
+            🏷️ Categories
+          </TabsTrigger>
+          <TabsTrigger value="uploads" className="text-sm">
+            📁 Data Upload
+          </TabsTrigger>
+          <TabsTrigger value="stop-requests" className="text-sm">
+            ⏹️ Stop Requests
+          </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="applications" className="space-y-4">
-          <ApplicationsOverview />
+        <TabsContent value="applications" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📊 Applications Overview
+              </CardTitle>
+              <CardDescription>
+                Monitor and analyze all employment registration applications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ApplicationsOverview />
+            </CardContent>
+          </Card>
         </TabsContent>
         
-        <TabsContent value="uploads" className="space-y-4">
-          <DataUpload />
+        <TabsContent value="registrations" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                👥 Registration Management
+              </CardTitle>
+              <CardDescription>
+                View and manage all employment registrations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RegistrationsView />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🔔 Notification Center
+              </CardTitle>
+              <CardDescription>
+                Create and manage notifications for categories, programs, and sub-projects
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NotificationManager />
+            </CardContent>
+          </Card>
         </TabsContent>
         
-        <TabsContent value="categories" className="space-y-4">
-          <CategoriesManagement />
+        <TabsContent value="categories" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🏷️ Employment Categories
+              </CardTitle>
+              <CardDescription>
+                Manage employment categories and their configurations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CategoriesManagement />
+            </CardContent>
+          </Card>
         </TabsContent>
         
-        <TabsContent value="registrations" className="space-y-4">
-          <RegistrationsView />
+        <TabsContent value="uploads" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📁 Data Management
+              </CardTitle>
+              <CardDescription>
+                Upload and manage registered client data
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <DataUpload />
+            </CardContent>
+          </Card>
         </TabsContent>
         
-        <TabsContent value="stop-requests" className="space-y-4">
-          <StopRequestsManagement />
-        </TabsContent>
-        
-        <TabsContent value="notifications" className="space-y-4">
-          <NotificationManager />
+        <TabsContent value="stop-requests" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                ⏹️ Stop Request Management
+              </CardTitle>
+              <CardDescription>
+                Review and process stop requests from clients
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <StopRequestsManagement />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>

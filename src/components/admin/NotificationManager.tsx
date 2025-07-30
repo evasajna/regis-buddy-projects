@@ -142,24 +142,40 @@ const NotificationManager = () => {
           })
           .eq('id', editingNotification.id);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Update error:', error);
+          throw error;
+        }
 
         toast({
           title: "Success",
           description: "Notification updated successfully",
         });
       } else {
+        // For insert, let's try a simpler approach first
         const { error } = await (supabase as any)
           .from('notifications')
-          .insert({
+          .insert([{
             title: formData.title,
             message: formData.message,
             type: formData.type,
             target_id: formData.target_id,
             is_active: formData.is_active
-          });
+          }]);
 
-        if (error) throw error;
+        if (error) {
+          console.error('Insert error:', error);
+          // If there's a permission error, it might be RLS policy issue
+          if (error.code === '42501') {
+            toast({
+              title: "Database Permission Error",
+              description: "Please check the RLS policies for the notifications table. You may need to disable RLS temporarily or update the policies.",
+              variant: "destructive",
+            });
+            return;
+          }
+          throw error;
+        }
 
         toast({
           title: "Success",
