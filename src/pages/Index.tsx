@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Users, Briefcase, Shield, Home, List, Plus } from "lucide-react";
+import { Users, Briefcase, Shield, Home, List, Plus, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -124,6 +124,10 @@ const Index = () => {
                 <Button onClick={() => navigate('/add-program')} className="text-lg px-8 py-4 h-auto bg-gradient-primary hover:shadow-glow transition-all duration-300 transform hover:scale-105">
                   <Plus className="h-5 w-5 mr-2" />
                   Add New Program
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/all-programs')} className="text-lg px-8 py-4 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                  <Eye className="h-5 w-5 mr-2" />
+                  View All Programs
                 </Button>
                 <Button variant="outline" onClick={() => setActiveTab("check")} className="text-lg px-8 py-4 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                   <Users className="h-5 w-5 mr-2" />
