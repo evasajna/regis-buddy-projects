@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { X } from "lucide-react";
 import DataUpload from "./admin/DataUpload";
 import CategoriesManagement from "./admin/CategoriesManagement";
 import RegistrationsView from "./admin/RegistrationsView";
@@ -17,6 +21,23 @@ const ApplicationsOverview = () => {
     count: number;
     is_active: boolean;
   }>>([]);
+  const [selectedCategory, setSelectedCategory] = useState<{
+    id: string;
+    name: string;
+    description: string;
+    count: number;
+    is_active: boolean;
+  } | null>(null);
+  const [categoryRegistrations, setCategoryRegistrations] = useState<Array<{
+    id: string;
+    client_id: string;
+    mobile_number: string;
+    registration_date: string;
+    status: string | null;
+    client_name: string;
+    customer_id: string;
+  }>>([]);
+  const [loadingRegistrations, setLoadingRegistrations] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -72,6 +93,54 @@ const ApplicationsOverview = () => {
     }
   };
 
+  const fetchCategoryRegistrations = async (categoryId: string) => {
+    setLoadingRegistrations(true);
+    try {
+      const { data, error } = await supabase
+        .from('employment_registrations')
+        .select(`
+          id,
+          client_id,
+          mobile_number,
+          registration_date,
+          status,
+          registered_clients!inner (
+            name,
+            customer_id
+          )
+        `)
+        .eq('category_id', categoryId);
+
+      if (error) throw error;
+
+      const formattedData = data?.map(registration => ({
+        id: registration.id,
+        client_id: registration.client_id,
+        mobile_number: registration.mobile_number,
+        registration_date: registration.registration_date,
+        status: registration.status,
+        client_name: registration.registered_clients?.name || 'N/A',
+        customer_id: registration.registered_clients?.customer_id || 'N/A'
+      })) || [];
+
+      setCategoryRegistrations(formattedData);
+    } catch (error) {
+      console.error('Error fetching category registrations:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load category registrations",
+        variant: "destructive",
+      });
+    } finally {
+      setLoadingRegistrations(false);
+    }
+  };
+
+  const handleCategoryClick = (category: typeof categoryBreakdown[0]) => {
+    setSelectedCategory(category);
+    fetchCategoryRegistrations(category.id);
+  };
+
   if (loading) {
     return <div>Loading applications overview...</div>;
   }
@@ -99,7 +168,11 @@ const ApplicationsOverview = () => {
         <h3 className="text-xl font-semibold mb-4">Registrations by Employment Category</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {categoryBreakdown.map((category) => (
-            <Card key={category.id} className="hover:shadow-md transition-shadow">
+            <Card 
+              key={category.id} 
+              className="hover:shadow-md transition-shadow cursor-pointer hover:bg-muted/50"
+              onClick={() => handleCategoryClick(category)}
+            >
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg">{category.name}</CardTitle>
                 <CardDescription className="text-sm">
@@ -116,6 +189,82 @@ const ApplicationsOverview = () => {
           ))}
         </div>
       </div>
+
+      {/* Category Registrations Modal */}
+      <Dialog open={!!selectedCategory} onOpenChange={() => setSelectedCategory(null)}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              <span>Registrations for {selectedCategory?.name}</span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSelectedCategory(null)}
+                className="h-6 w-6 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {loadingRegistrations ? (
+            <div className="text-center py-8">Loading registrations...</div>
+          ) : (
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground">
+                Total registrations: {categoryRegistrations.length}
+              </div>
+              
+              {categoryRegistrations.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No registrations found for this category.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {categoryRegistrations.map((registration) => (
+                    <Card key={registration.id} className="p-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Client Name</label>
+                          <p className="font-semibold">{registration.client_name}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Customer ID</label>
+                          <p className="font-semibold">{registration.customer_id}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Mobile Number</label>
+                          <p className="font-semibold">{registration.mobile_number}</p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Registration Date</label>
+                          <p className="font-semibold">
+                            {new Date(registration.registration_date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div>
+                          <label className="text-sm font-medium text-muted-foreground">Status</label>
+                          <div>
+                            <Badge 
+                              variant={
+                                registration.status === 'active' ? 'default' :
+                                registration.status === 'stop_requested' ? 'destructive' :
+                                'secondary'
+                              }
+                            >
+                              {registration.status || 'active'}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
