@@ -119,7 +119,7 @@ const CheckRegistration = () => {
 
       setClientData(client);
 
-      // Get employment registrations with program details
+      // Get employment registrations
       const { data: regs, error: regsError } = await supabase
         .from("employment_registrations")
         .select(`
@@ -127,14 +127,6 @@ const CheckRegistration = () => {
           employment_categories (
             name,
             description
-          ),
-          programs (
-            name,
-            description,
-            conditions,
-            sub_projects (
-              name
-            )
           )
         `)
         .eq("mobile_number", mobileNumber);
@@ -330,31 +322,17 @@ const CheckRegistration = () => {
                             </Badge>
                           </div>
                           
-                          {reg.programs && (
-                            <div className="mb-4 p-3 bg-muted/50 rounded-lg">
-                              <h4 className="font-medium text-sm mb-2">Program Details:</h4>
-                              <div className="space-y-1">
-                                <p className="font-medium">{reg.programs.name}</p>
-                                {reg.programs.description && (
-                                  <p className="text-sm text-muted-foreground">{reg.programs.description}</p>
-                                )}
-                                {reg.programs.conditions && (
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      Conditions: {reg.programs.conditions}
-                                    </Badge>
-                                  </div>
-                                )}
-                                {reg.programs.sub_projects && (
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant="secondary" className="text-xs">
-                                      Sub-project: {reg.programs.sub_projects.name}
-                                    </Badge>
-                                  </div>
-                                )}
-                              </div>
+                          <div className="mb-4 p-3 bg-muted/50 rounded-lg">
+                            <h4 className="font-medium text-sm mb-2">Registration Details:</h4>
+                            <div className="space-y-1">
+                              <p className="text-sm text-muted-foreground">
+                                Category: {reg.employment_categories?.name}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                Registration ID: {reg.id}
+                              </p>
                             </div>
-                          )}
+                          </div>
                           
                           <div className="text-sm text-muted-foreground">
                             <p>Registration Date: {new Date(reg.registration_date).toLocaleDateString()}</p>

@@ -27,6 +27,14 @@ interface Registration {
     name: string;
     description: string;
   } | null;
+  available_programs?: {
+    name: string;
+    description?: string;
+    conditions?: string;
+    sub_projects?: {
+      name: string;
+    };
+  }[];
 }
 
 const RegistrationsView = () => {
@@ -53,7 +61,8 @@ const RegistrationsView = () => {
   const fetchRegistrations = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // First get registrations with basic info
+      const { data: registrations, error } = await supabase
         .from("employment_registrations")
         .select(`
           *,
@@ -72,11 +81,38 @@ const RegistrationsView = () => {
         .order("registration_date", { ascending: false });
 
       if (error) throw error;
-      setRegistrations((data as unknown as Registration[]) || []);
+
+      // For each registration, get the programs that match the category
+      const registrationsWithPrograms = await Promise.all(
+        (registrations || []).map(async (reg) => {
+          if (reg.category_id) {
+            const { data: programs } = await supabase
+              .from("programs")
+              .select(`
+                name,
+                description,
+                conditions,
+                sub_projects (
+                  name
+                )
+              `)
+              .eq("category_id", reg.category_id);
+            
+            return {
+              ...reg,
+              available_programs: programs || []
+            };
+          }
+          return reg;
+        })
+      );
+
+      setRegistrations(registrationsWithPrograms as Registration[]);
+
       
       // Extract unique panchayaths
       const uniquePanchayaths = [...new Set(
-        (data || [])
+        registrationsWithPrograms
           .map(reg => reg.registered_clients?.panchayath)
           .filter(Boolean)
       )] as string[];
@@ -140,6 +176,7 @@ const RegistrationsView = () => {
       'Customer ID': reg.registered_clients?.customer_id || '',
       'Mobile Number': reg.mobile_number || '',
       'Category': reg.employment_categories?.name || '',
+      'Available Programs': reg.available_programs?.map(p => p.name).join(', ') || 'None',
       'District': reg.registered_clients?.district || '',
       'Panchayath': reg.registered_clients?.panchayath || '',
       'Agent': reg.registered_clients?.agent_pro || '',
@@ -339,6 +376,7 @@ const RegistrationsView = () => {
                     <TableHead>Customer ID</TableHead>
                     <TableHead>Mobile</TableHead>
                     <TableHead>Category</TableHead>
+                    <TableHead>Available Programs</TableHead>
                     <TableHead>District</TableHead>
                     <TableHead>Panchayath</TableHead>
                     <TableHead>Agent</TableHead>
@@ -356,6 +394,24 @@ const RegistrationsView = () => {
                       <TableCell>{registration.registered_clients?.customer_id}</TableCell>
                       <TableCell>{registration.mobile_number}</TableCell>
                       <TableCell>{registration.employment_categories?.name}</TableCell>
+                      <TableCell>
+                        {registration.available_programs && registration.available_programs.length > 0 ? (
+                          <div className="space-y-1">
+                            {registration.available_programs.slice(0, 2).map((program, index) => (
+                              <Badge key={index} variant="outline" className="text-xs mr-1">
+                                {program.name}
+                              </Badge>
+                            ))}
+                            {registration.available_programs.length > 2 && (
+                              <Badge variant="secondary" className="text-xs">
+                                +{registration.available_programs.length - 2} more
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">No programs</span>
+                        )}
+                      </TableCell>
                       <TableCell>{registration.registered_clients?.district}</TableCell>
                       <TableCell>{registration.registered_clients?.panchayath || 'N/A'}</TableCell>
                       <TableCell>{registration.registered_clients?.agent_pro}</TableCell>
