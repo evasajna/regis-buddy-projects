@@ -60,7 +60,7 @@ const CategoryCard = ({
         <div className="flex items-center justify-between mt-3">
           <div className="flex gap-2">
             <Badge variant="secondary" className="bg-pink-300">{programs.length} Programs</Badge>
-            <Badge variant="outline" className="bg-cyan-200">{subProjects.length} Sub-projects</Badge>
+            <Badge variant="outline" className="bg-red-50">{subProjects.length} Sub-projects</Badge>
           </div>
           <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
