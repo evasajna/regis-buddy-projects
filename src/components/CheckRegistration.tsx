@@ -9,12 +9,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Bell } from "lucide-react";
 
 const CheckRegistration = () => {
   const [mobileNumber, setMobileNumber] = useState("");
   const [registrations, setRegistrations] = useState<any[]>([]);
   const [clientData, setClientData] = useState<any>(null);
   const [availablePrograms, setAvailablePrograms] = useState<any[]>([]);
+  const [userNotifications, setUserNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<{id: string, name: string} | null>(null);
@@ -90,6 +92,49 @@ const CheckRegistration = () => {
     } catch (error) {
       console.error('Error fetching available programs:', error);
       setAvailablePrograms([]);
+    }
+  };
+
+  const fetchUserNotifications = async (client: any, registrations: any[]) => {
+    try {
+      // Get all category IDs that the user is registered for
+      const categoryIds = registrations.map(reg => reg.category_id).filter(Boolean);
+      
+      if (categoryIds.length === 0) return;
+
+      // Fetch notifications for these categories
+      const { data: notifications, error } = await (supabase as any)
+        .from('notifications')
+        .select('*')
+        .in('target_id', categoryIds)
+        .eq('type', 'category')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching notifications:', error);
+        setUserNotifications([]);
+        return;
+      }
+
+      // Also fetch program-specific notifications if any
+      const { data: programNotifications, error: progError } = await (supabase as any)
+        .from('notifications')
+        .select('*')
+        .eq('type', 'program')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (progError) {
+        console.error('Error fetching program notifications:', progError);
+      }
+
+      // Combine and deduplicate notifications
+      const allNotifications = [...(notifications || []), ...(programNotifications || [])];
+      setUserNotifications(allNotifications);
+    } catch (error) {
+      console.error('Error fetching user notifications:', error);
+      setUserNotifications([]);
     }
   };
 
@@ -175,6 +220,9 @@ const CheckRegistration = () => {
 
       // Fetch available programs based on qualification
       await fetchAvailablePrograms(client);
+      
+      // Fetch user-specific notifications
+      await fetchUserNotifications(client, registrationsWithPrograms || []);
       
       toast({
         title: "Records Found",
@@ -420,54 +468,47 @@ const CheckRegistration = () => {
                     {/* Notifications Section */}
                     <Card className="mt-4">
                       <CardHeader>
-                        <CardTitle className="text-lg">Notifications</CardTitle>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Bell className="h-5 w-5" />
+                          Notifications
+                        </CardTitle>
                         <CardDescription>
-                          Messages related to your applications and programs
+                          Important updates related to your employment categories and programs
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
-                          {registrations.length === 0 ? (
+                          {userNotifications.length === 0 ? (
                             <div className="text-center py-6 text-muted-foreground">
-                              No notifications available. Apply for programs to receive updates.
+                              <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                              <p>No notifications available for your categories.</p>
+                              <p className="text-sm">Notifications will appear here when admins post updates for your employment categories.</p>
                             </div>
                           ) : (
                             <>
-                              {/* Sample notification structure */}
-                              <div className="p-3 border rounded-lg bg-blue-50 border-blue-200">
-                                <div className="flex justify-between items-start mb-2">
-                                  <h4 className="font-medium text-blue-900">Program Update</h4>
-                                  <Badge variant="outline" className="text-xs">Today</Badge>
-                                </div>
-                                <p className="text-sm text-blue-800">
-                                  Welcome to the employment registration system! Your applications are being processed.
-                                </p>
-                              </div>
-                              
-                              {registrations.map((reg, index) => (
-                                <div key={reg.id} className="p-3 border rounded-lg bg-green-50 border-green-200">
+                              {userNotifications.map((notification, index) => (
+                                <div key={notification.id} className="p-4 border rounded-lg bg-blue-50 border-blue-200">
                                   <div className="flex justify-between items-start mb-2">
-                                    <h4 className="font-medium text-green-900">
-                                      {reg.employment_categories?.name} Status
-                                    </h4>
+                                    <h4 className="font-medium text-blue-900">{notification.title}</h4>
                                     <Badge variant="outline" className="text-xs">
-                                      {new Date(reg.created_at).toLocaleDateString()}
+                                      {new Date(notification.created_at).toLocaleDateString()}
                                     </Badge>
                                   </div>
-                                  <p className="text-sm text-green-800">
-                                    Your registration for {reg.employment_categories?.name} is currently{' '}
-                                    <strong>{reg.status || 'active'}</strong>. 
-                                    {reg.status === 'multi_approved' && ' You can now apply for multiple programs.'}
-                                    {reg.status === 'stop_requested' && ' Your stop request is being processed.'}
-                                    {!reg.status && ' You can view available programs in the Available Programs tab.'}
+                                  <p className="text-sm text-blue-800 mb-2">
+                                    {notification.message}
                                   </p>
+                                  <div className="flex items-center gap-2 text-xs text-blue-600">
+                                    <Badge variant="secondary" className="text-xs">
+                                      {notification.type}
+                                    </Badge>
+                                    <span>•</span>
+                                    <span>Updated: {new Date(notification.updated_at).toLocaleDateString()}</span>
+                                  </div>
                                 </div>
                               ))}
                               
-                              <div className="text-xs text-muted-foreground mt-4 p-2 bg-muted/30 rounded">
-                                <strong>Note:</strong> Once the admin sets up the notifications system, 
-                                you'll receive specific updates about program changes, new opportunities, 
-                                and status updates related to your categories.
+                              <div className="text-xs text-muted-foreground mt-4 p-3 bg-muted/30 rounded">
+                                <strong>📢 Stay Updated:</strong> These notifications are managed by administrators and contain important information about your employment categories, program updates, and opportunities.
                               </div>
                             </>
                           )}
