@@ -114,22 +114,22 @@ const Index = () => {
     }
 
     return (
-      <div className="container mx-auto p-6">
-        <div className="mb-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Employment Categories</h2>
-          <p className="text-muted-foreground mb-6">
+      <div className="container mx-auto p-4 sm:p-6">
+        <div className="mb-6 sm:mb-8 text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-4">Employment Categories</h2>
+          <p className="text-muted-foreground mb-4 sm:mb-6 text-sm sm:text-base">
             Explore our employment programs and opportunities
           </p>
           
-          <div className="flex justify-center gap-4 mb-8">
-            <Button onClick={() => navigate('/add-program')} className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 mb-6 sm:mb-8">
+            <Button onClick={() => navigate('/add-program')} className="flex items-center gap-2 text-sm sm:text-base">
               <Plus className="h-4 w-4" />
               Add New Program
             </Button>
             <Button 
               variant="outline" 
               onClick={() => setActiveTab("check")}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 text-sm sm:text-base"
             >
               <Users className="h-4 w-4" />
               Check Status
@@ -176,8 +176,8 @@ const Index = () => {
       <nav className="bg-card border-b">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
-            <h1 className="text-2xl font-bold text-primary">E-Life Society</h1>
-            <div className="flex space-x-4">
+            <h1 className="text-xl sm:text-2xl font-bold text-primary">E-Life Society</h1>
+            <div className="hidden md:flex space-x-4">
               <Button
                 variant={activeTab === "home" ? "default" : "ghost"}
                 onClick={() => setActiveTab("home")}
@@ -217,6 +217,45 @@ const Index = () => {
               >
                 <Shield className="h-4 w-4" />
                 Admin
+              </Button>
+            </div>
+            
+            {/* Mobile Navigation */}
+            <div className="flex md:hidden space-x-1">
+              <Button
+                variant={activeTab === "home" ? "default" : "ghost"}
+                onClick={() => setActiveTab("home")}
+                size="sm"
+              >
+                <Home className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => navigate('/all-programs')}
+                size="sm"
+              >
+                <List className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={activeTab === "register" ? "default" : "ghost"}
+                onClick={() => setActiveTab("register")}
+                size="sm"
+              >
+                <Briefcase className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={activeTab === "check" ? "default" : "ghost"}
+                onClick={() => setActiveTab("check")}
+                size="sm"
+              >
+                <Users className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={activeTab === "admin" ? "default" : "ghost"}
+                onClick={() => setActiveTab("admin")}
+                size="sm"
+              >
+                <Shield className="h-4 w-4" />
               </Button>
             </div>
           </div>

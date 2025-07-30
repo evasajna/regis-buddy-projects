@@ -145,35 +145,35 @@ const CategoryDetails = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={() => navigate('/')}>
+    <div className="container mx-auto p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
+        <Button variant="outline" onClick={() => navigate('/')} size="sm">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <div>
-          <h1 className="text-3xl font-bold">{category.name}</h1>
+        <div className="flex-1">
+          <h1 className="text-2xl sm:text-3xl font-bold">{category.name}</h1>
           {category.description && (
-            <p className="text-muted-foreground mt-1">{category.description}</p>
+            <p className="text-muted-foreground mt-1 text-sm sm:text-base">{category.description}</p>
           )}
         </div>
       </div>
 
-      <div className="flex gap-4 mb-6">
-        <Button onClick={() => navigate(`/add-program?category=${category.id}`)}>
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6">
+        <Button onClick={() => navigate(`/add-program?category=${category.id}`)} className="text-sm sm:text-base">
           <Plus className="h-4 w-4 mr-2" />
           Add New Program
         </Button>
-        <Button variant="outline" onClick={() => navigate(`/add-sub-project?category=${category.id}`)}>
+        <Button variant="outline" onClick={() => navigate(`/add-sub-project?category=${category.id}`)} className="text-sm sm:text-base">
           <Plus className="h-4 w-4 mr-2" />
           Add Sub-Project
         </Button>
       </div>
 
       <Tabs defaultValue="programs" className="w-full">
-        <TabsList>
-          <TabsTrigger value="programs">Programs ({programs.length})</TabsTrigger>
-          <TabsTrigger value="subprojects">Sub-projects ({subProjects.length})</TabsTrigger>
+        <TabsList className="w-full grid grid-cols-2">
+          <TabsTrigger value="programs" className="text-xs sm:text-sm">Programs ({programs.length})</TabsTrigger>
+          <TabsTrigger value="subprojects" className="text-xs sm:text-sm">Sub-projects ({subProjects.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="programs" className="space-y-4">
@@ -187,14 +187,14 @@ const CategoryDetails = () => {
             programs.map((program) => (
               <Card key={program.id}>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{program.name}</CardTitle>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex-1">
+                      <CardTitle className="text-base sm:text-lg">{program.name}</CardTitle>
                       {program.description && (
-                        <CardDescription className="mt-1">{program.description}</CardDescription>
+                        <CardDescription className="mt-1 text-sm">{program.description}</CardDescription>
                       )}
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 self-end sm:self-center">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -235,13 +235,13 @@ const CategoryDetails = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {subProjects.map((subProject) => (
                 <Card key={subProject.id}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">{subProject.name}</CardTitle>
-                      <div className="flex gap-2">
+                  <CardHeader className="pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <CardTitle className="text-sm sm:text-base flex-1">{subProject.name}</CardTitle>
+                      <div className="flex gap-2 self-end sm:self-center">
                         <Button
                           variant="ghost"
                           size="sm"

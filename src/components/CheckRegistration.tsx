@@ -379,32 +379,33 @@ const CheckRegistration = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-4 sm:p-6 max-w-4xl">
       <Card>
         <CardHeader>
-          <CardTitle>Check Registration Status</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl sm:text-2xl">Check Registration Status</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Enter your mobile number to view your registration details
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="flex gap-4">
+        <CardContent className="space-y-4 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
             <div className="flex-1">
-              <Label htmlFor="mobile">Mobile Number</Label>
+              <Label htmlFor="mobile" className="text-sm sm:text-base">Mobile Number</Label>
               <Input
                 id="mobile"
                 type="tel"
                 placeholder="Enter your mobile number"
                 value={mobileNumber}
                 onChange={(e) => setMobileNumber(e.target.value)}
+                className="text-sm sm:text-base"
               />
             </div>
-            <div className="flex items-end gap-2">
-              <Button onClick={checkRegistrations} disabled={loading}>
+            <div className="flex flex-col sm:flex-row sm:items-end gap-2">
+              <Button onClick={checkRegistrations} disabled={loading} className="text-sm sm:text-base">
                 {loading ? "Checking..." : "Check Status"}
               </Button>
               {(clientData || registrations.length > 0) && (
-                <Button onClick={reset} variant="outline">
+                <Button onClick={reset} variant="outline" className="text-sm sm:text-base">
                   Reset
                 </Button>
               )}
@@ -413,10 +414,10 @@ const CheckRegistration = () => {
 
           {clientData && (
             <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="details">Personal Details</TabsTrigger>
-                <TabsTrigger value="programs">Available Programs ({availablePrograms.length})</TabsTrigger>
-                <TabsTrigger value="registrations">My Registrations ({registrations.length})</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-3 text-xs sm:text-sm">
+                <TabsTrigger value="details" className="text-xs sm:text-sm px-1 sm:px-3">Details</TabsTrigger>
+                <TabsTrigger value="programs" className="text-xs sm:text-sm px-1 sm:px-3">Programs ({availablePrograms.length})</TabsTrigger>
+                <TabsTrigger value="registrations" className="text-xs sm:text-sm px-1 sm:px-3">Registrations ({registrations.length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="space-y-4">
@@ -434,34 +435,34 @@ const CheckRegistration = () => {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Name</Label>
-                        <p className="font-medium">{clientData.name}</p>
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Name</Label>
+                        <p className="font-medium text-sm sm:text-base">{clientData.name}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Customer ID</Label>
-                        <p className="font-medium">{clientData.customer_id}</p>
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Customer ID</Label>
+                        <p className="font-medium text-sm sm:text-base">{clientData.customer_id}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Category</Label>
-                        <p className="font-medium">{clientData.category}</p>
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Category</Label>
+                        <p className="font-medium text-sm sm:text-base">{clientData.category}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">District</Label>
-                        <p className="font-medium">{clientData.district}</p>
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">District</Label>
+                        <p className="font-medium text-sm sm:text-base">{clientData.district}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Panchayath</Label>
-                        <p className="font-medium">{clientData.panchayath}</p>
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Panchayath</Label>
+                        <p className="font-medium text-sm sm:text-base">{clientData.panchayath}</p>
                       </div>
                       <div>
-                        <Label className="text-sm font-medium text-muted-foreground">Agent/PRO</Label>
-                        <p className="font-medium">{clientData.agent_pro}</p>
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Agent/PRO</Label>
+                        <p className="font-medium text-sm sm:text-base">{clientData.agent_pro}</p>
                       </div>
-                      <div className="md:col-span-2">
-                        <Label className="text-sm font-medium text-muted-foreground">Address</Label>
-                        <p className="font-medium">{clientData.address}</p>
+                      <div className="sm:col-span-2">
+                        <Label className="text-xs sm:text-sm font-medium text-muted-foreground">Address</Label>
+                        <p className="font-medium text-sm sm:text-base">{clientData.address}</p>
                       </div>
                     </div>
 

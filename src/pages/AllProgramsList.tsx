@@ -105,62 +105,62 @@ const AllProgramsList = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={() => navigate('/')}>
+    <div className="container mx-auto p-4 sm:p-6">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
+        <Button variant="outline" onClick={() => navigate('/')} size="sm">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-3xl font-bold">All Programs</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold">All Programs</h1>
       </div>
 
       <div className="mb-6">
-        <div className="relative max-w-md">
+        <div className="relative max-w-full sm:max-w-md">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
             placeholder="Search programs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 text-sm sm:text-base"
           />
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Programs Table</CardTitle>
-          <CardDescription>All programs with detailed information</CardDescription>
+          <CardTitle className="text-lg sm:text-xl">Programs Table</CardTitle>
+          <CardDescription className="text-sm sm:text-base">All programs with detailed information</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Program Name</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Description</TableHead>
-                <TableHead>Conditions</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead className="text-xs sm:text-sm">Program Name</TableHead>
+                <TableHead className="text-xs sm:text-sm">Category</TableHead>
+                <TableHead className="text-xs sm:text-sm hidden md:table-cell">Description</TableHead>
+                <TableHead className="text-xs sm:text-sm hidden lg:table-cell">Conditions</TableHead>
+                <TableHead className="text-xs sm:text-sm">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredPrograms.map((program, index) => (
                 <TableRow key={program.id} className={index % 2 === 0 ? "bg-muted/20" : "bg-background"}>
-                  <TableCell className="font-medium">{program.name}</TableCell>
+                  <TableCell className="font-medium text-xs sm:text-sm">{program.name}</TableCell>
                   <TableCell>
                     <Badge 
                       variant="outline" 
-                      className={getCategoryColor(program.employment_categories?.name || 'Unknown')}
+                      className={`${getCategoryColor(program.employment_categories?.name || 'Unknown')} text-xs`}
                     >
                       {program.employment_categories?.name || 'Unknown'}
                     </Badge>
                   </TableCell>
-                  <TableCell className="max-w-xs">
-                    <div className="truncate" title={program.description}>
+                  <TableCell className="max-w-xs hidden md:table-cell">
+                    <div className="truncate text-xs sm:text-sm" title={program.description}>
                       {program.description || 'No description'}
                     </div>
                   </TableCell>
-                  <TableCell className="max-w-xs">
-                    <div className="truncate" title={program.conditions}>
+                  <TableCell className="max-w-xs hidden lg:table-cell">
+                    <div className="truncate text-xs sm:text-sm" title={program.conditions}>
                       {program.conditions || 'No conditions'}
                     </div>
                   </TableCell>
@@ -169,8 +169,9 @@ const AllProgramsList = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => navigate(`/category/${program.category_id}`)}
+                      className="text-xs sm:text-sm"
                     >
-                      View Category
+                      View
                     </Button>
                   </TableCell>
                 </TableRow>

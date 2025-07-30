@@ -157,15 +157,15 @@ const EmploymentRegistration = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
+    <div className="container mx-auto p-4 sm:p-6 max-w-2xl">
       <Card>
         <CardHeader>
-          <CardTitle>Employment Registration</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-xl sm:text-2xl">Employment Registration</CardTitle>
+          <CardDescription className="text-sm sm:text-base">
             Register for employment opportunities with E-Life Society
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-4 sm:space-y-6">
           {step === "verify" && (
             <div className="space-y-4">
               <div>

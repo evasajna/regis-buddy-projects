@@ -179,13 +179,13 @@ const AddProgram = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-2xl">
-      <div className="flex items-center gap-4 mb-6">
-        <Button variant="outline" onClick={() => navigate(-1)}>
+    <div className="container mx-auto p-4 sm:p-6 max-w-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
+        <Button variant="outline" onClick={() => navigate(-1)} size="sm">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back
         </Button>
-        <h1 className="text-3xl font-bold">
+        <h1 className="text-2xl sm:text-3xl font-bold">
           {editId ? 'Edit Program' : 'Add New Program'}
         </h1>
       </div>
@@ -267,11 +267,11 @@ const AddProgram = () => {
               </Select>
             </div>
 
-            <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={loading} className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 pt-4">
+              <Button type="submit" disabled={loading} className="flex-1 text-sm sm:text-base">
                 {loading ? 'Saving...' : editId ? 'Update Program' : 'Create Program'}
               </Button>
-              <Button type="button" variant="outline" onClick={() => navigate(-1)}>
+              <Button type="button" variant="outline" onClick={() => navigate(-1)} className="text-sm sm:text-base">
                 Cancel
               </Button>
             </div>
