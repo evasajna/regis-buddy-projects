@@ -416,6 +416,64 @@ const CheckRegistration = () => {
                         <p className="font-medium">{clientData.address}</p>
                       </div>
                     </div>
+
+                    {/* Notifications Section */}
+                    <Card className="mt-4">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Notifications</CardTitle>
+                        <CardDescription>
+                          Messages related to your applications and programs
+                        </CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {registrations.length === 0 ? (
+                            <div className="text-center py-6 text-muted-foreground">
+                              No notifications available. Apply for programs to receive updates.
+                            </div>
+                          ) : (
+                            <>
+                              {/* Sample notification structure */}
+                              <div className="p-3 border rounded-lg bg-blue-50 border-blue-200">
+                                <div className="flex justify-between items-start mb-2">
+                                  <h4 className="font-medium text-blue-900">Program Update</h4>
+                                  <Badge variant="outline" className="text-xs">Today</Badge>
+                                </div>
+                                <p className="text-sm text-blue-800">
+                                  Welcome to the employment registration system! Your applications are being processed.
+                                </p>
+                              </div>
+                              
+                              {registrations.map((reg, index) => (
+                                <div key={reg.id} className="p-3 border rounded-lg bg-green-50 border-green-200">
+                                  <div className="flex justify-between items-start mb-2">
+                                    <h4 className="font-medium text-green-900">
+                                      {reg.employment_categories?.name} Status
+                                    </h4>
+                                    <Badge variant="outline" className="text-xs">
+                                      {new Date(reg.created_at).toLocaleDateString()}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-green-800">
+                                    Your registration for {reg.employment_categories?.name} is currently{' '}
+                                    <strong>{reg.status || 'active'}</strong>. 
+                                    {reg.status === 'multi_approved' && ' You can now apply for multiple programs.'}
+                                    {reg.status === 'stop_requested' && ' Your stop request is being processed.'}
+                                    {!reg.status && ' You can view available programs in the Available Programs tab.'}
+                                  </p>
+                                </div>
+                              ))}
+                              
+                              <div className="text-xs text-muted-foreground mt-4 p-2 bg-muted/30 rounded">
+                                <strong>Note:</strong> Once the admin sets up the notifications system, 
+                                you'll receive specific updates about program changes, new opportunities, 
+                                and status updates related to your categories.
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
                   </CardContent>
                 </Card>
               </TabsContent>

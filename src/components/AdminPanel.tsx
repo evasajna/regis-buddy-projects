@@ -12,6 +12,7 @@ import DataUpload from "./admin/DataUpload";
 import CategoriesManagement from "./admin/CategoriesManagement";
 import RegistrationsView from "./admin/RegistrationsView";
 import StopRequestsManagement from "./admin/StopRequestsManagement";
+import NotificationManager from "./admin/NotificationManager";
 
 const ApplicationsOverview = () => {
   const [totalApplications, setTotalApplications] = useState(0);
@@ -277,12 +278,13 @@ const AdminPanel = () => {
       </div>
 
       <Tabs defaultValue="applications" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="applications">Applications Overview</TabsTrigger>
           <TabsTrigger value="uploads">Registered Data Uploads</TabsTrigger>
           <TabsTrigger value="categories">Employment Categories</TabsTrigger>
           <TabsTrigger value="registrations">Registrations</TabsTrigger>
           <TabsTrigger value="stop-requests">Stop Requests</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
         </TabsList>
         
         <TabsContent value="applications" className="space-y-4">
@@ -303,6 +305,10 @@ const AdminPanel = () => {
         
         <TabsContent value="stop-requests" className="space-y-4">
           <StopRequestsManagement />
+        </TabsContent>
+        
+        <TabsContent value="notifications" className="space-y-4">
+          <NotificationManager />
         </TabsContent>
       </Tabs>
     </div>
