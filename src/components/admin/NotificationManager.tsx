@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2 } from "lucide-react";
@@ -66,11 +66,7 @@ const NotificationManager = () => {
     try {
       setLoading(true);
       
-      // For now, we'll use a mock implementation since notifications table doesn't exist yet
-      // In a real implementation, admin would create the notifications table first
-      setNotifications([]);
-
-      // Fetch categories
+      // Fetch categories first
       const { data: categoryData, error: categoryError } = await supabase
         .from('employment_categories')
         .select('id, name')
@@ -94,6 +90,32 @@ const NotificationManager = () => {
 
       if (programError) throw programError;
       setPrograms(programData || []);
+
+      // Create sample notifications to show the UI (since notifications table doesn't exist yet)
+      const sampleNotifications: Notification[] = [
+        {
+          id: 'sample-1',
+          title: 'Welcome to Employment Programs',
+          message: 'New opportunities are available in the entrepreneurship category. Check out the latest programs!',
+          type: 'category' as const,
+          target_id: categoryData?.[0]?.id || 'sample-target',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        },
+        {
+          id: 'sample-2',
+          title: 'Database Setup Required',
+          message: 'To enable full notification functionality, please create the notifications table in Supabase using the provided SQL.',
+          type: 'category' as const,
+          target_id: categoryData?.[1]?.id || 'sample-target-2',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+      ];
+      
+      setNotifications(sampleNotifications);
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -120,13 +142,13 @@ const NotificationManager = () => {
     }
 
     try {
-      // Mock implementation - shows notification that table needs to be created
+      // Show demo message since notifications table doesn't exist yet
       toast({
-        title: "Database Setup Required",
-        description: "Please create the 'notifications' table in Supabase to enable this feature. This demo shows the UI structure.",
+        title: "Demo Mode",
+        description: "Please create the 'notifications' table in Supabase using the provided SQL to enable this feature. Currently showing demo interface.",
         variant: "destructive",
       });
-
+      
       setShowDialog(false);
       resetForm();
     } catch (error) {
@@ -155,7 +177,7 @@ const NotificationManager = () => {
     if (!confirm('Are you sure you want to delete this notification?')) return;
 
     toast({
-      title: "Database Setup Required",
+      title: "Demo Mode",
       description: "Please create the 'notifications' table in Supabase to enable this feature.",
       variant: "destructive",
     });
@@ -286,6 +308,9 @@ const NotificationManager = () => {
             <DialogTitle>
               {editingNotification ? "Edit Notification" : "Add New Notification"}
             </DialogTitle>
+            <DialogDescription>
+              {editingNotification ? "Update the notification details below." : "Create a new notification for a category, sub-project, or program."}
+            </DialogDescription>
           </DialogHeader>
           
           <form onSubmit={handleSubmit} className="space-y-4">
