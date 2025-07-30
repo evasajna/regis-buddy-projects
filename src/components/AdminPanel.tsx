@@ -6,6 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import DataUpload from "./admin/DataUpload";
 import CategoriesManagement from "./admin/CategoriesManagement";
 import RegistrationsView from "./admin/RegistrationsView";
+import StopRequestsManagement from "./admin/StopRequestsManagement";
 
 const ApplicationsOverview = () => {
   const [totalApplications, setTotalApplications] = useState(0);
@@ -67,11 +68,12 @@ const AdminPanel = () => {
       </div>
 
       <Tabs defaultValue="applications" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="applications">Applications Overview</TabsTrigger>
           <TabsTrigger value="uploads">Registered Data Uploads</TabsTrigger>
           <TabsTrigger value="categories">Employment Categories</TabsTrigger>
           <TabsTrigger value="registrations">Registrations</TabsTrigger>
+          <TabsTrigger value="stop-requests">Stop Requests</TabsTrigger>
         </TabsList>
         
         <TabsContent value="applications" className="space-y-4">
@@ -88,6 +90,10 @@ const AdminPanel = () => {
         
         <TabsContent value="registrations" className="space-y-4">
           <RegistrationsView />
+        </TabsContent>
+        
+        <TabsContent value="stop-requests" className="space-y-4">
+          <StopRequestsManagement />
         </TabsContent>
       </Tabs>
     </div>

@@ -196,6 +196,8 @@ const CheckRegistration = () => {
         return "bg-red-500";
       case "pending":
         return "bg-yellow-500";
+      case "stop_requested":
+        return "bg-orange-500";
       default:
         return "bg-gray-500";
     }
@@ -210,15 +212,20 @@ const CheckRegistration = () => {
         .from("employment_registrations")
         .select("*")
         .eq("mobile_number", clientData.mobile_number)
-        .neq("status", "rejected"); // Only count non-rejected registrations
+        .not("status", "in", "(rejected,stopped)"); // Only count active registrations
 
       if (existingRegistrations && existingRegistrations.length > 0) {
-        toast({
-          variant: "destructive",
-          title: "Registration Limit Reached",
-          description: "You can only have one active registration at a time. Please contact admin to pause your existing registration before applying for a new program."
-        });
-        return;
+        // Check if any existing registration has multi-program approval
+        const hasMultiApproval = existingRegistrations.some(reg => reg.status === 'multi_approved');
+        
+        if (!hasMultiApproval) {
+          toast({
+            variant: "destructive",
+            title: "Registration Limit Reached", 
+            description: "You can only have one active registration at a time. Please request to stop your current registration or request multi-program approval."
+          });
+          return;
+        }
       }
 
       const { error } = await supabase
@@ -243,6 +250,38 @@ const CheckRegistration = () => {
       toast({
         title: "Application Failed",
         description: "Failed to submit your application. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const requestStopProgram = async (registrationId: string, categoryName: string) => {
+    if (!clientData) return;
+    
+    try {
+      // For now, we'll add this as a comment to the existing registration
+      // Later, admin can add the program_stop_requests table
+      const { error } = await supabase
+        .from('employment_registrations')
+        .update({
+          status: 'stop_requested' // Custom status to indicate stop request
+        })
+        .eq('id', registrationId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Request Submitted",
+        description: "Your request to stop/allow multi-program has been submitted for admin approval.",
+      });
+
+      // Refresh registrations to show updated status
+      checkRegistrations();
+    } catch (error) {
+      console.error('Error submitting stop request:', error);
+      toast({
+        title: "Request Failed",
+        description: "Failed to submit your request. Please try again.",
         variant: "destructive",
       });
     }
@@ -377,7 +416,16 @@ const CheckRegistration = () => {
 
                           {reg.available_programs && reg.available_programs.length > 0 && (
                             <div className="mb-4 p-3 bg-blue-50 rounded-lg">
-                              <h4 className="font-medium text-sm mb-2">Available Programs for this Category:</h4>
+                              <div className="flex justify-between items-center mb-2">
+                                <h4 className="font-medium text-sm">Available Programs for this Category:</h4>
+                                <Button 
+                                  size="sm" 
+                                  variant="destructive"
+                                  onClick={() => requestStopProgram(reg.id, reg.employment_categories?.name || '')}
+                                >
+                                  Request Stop/Multi-Program
+                                </Button>
+                              </div>
                               <div className="space-y-2">
                                 {reg.available_programs.map((program, index) => (
                                   <div key={index} className="border border-blue-200 p-2 rounded bg-white">
