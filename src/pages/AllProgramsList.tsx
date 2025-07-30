@@ -4,12 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Search, BarChart3, TableIcon } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import AdminPanel from "@/components/AdminPanel";
 
 interface Program {
   id: string;
@@ -30,11 +28,9 @@ const AllProgramsList = () => {
   const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [totalApplications, setTotalApplications] = useState(0);
 
   useEffect(() => {
     fetchPrograms();
-    fetchTotalApplications();
   }, []);
 
   useEffect(() => {
@@ -67,18 +63,6 @@ const AllProgramsList = () => {
     }
   };
 
-  const fetchTotalApplications = async () => {
-    try {
-      const { count, error } = await supabase
-        .from('employment_registrations')
-        .select('*', { count: 'exact', head: true });
-
-      if (error) throw error;
-      setTotalApplications(count || 0);
-    } catch (error) {
-      console.error('Error fetching total applications:', error);
-    }
-  };
 
   const filterPrograms = () => {
     if (!searchTerm) {
@@ -94,14 +78,6 @@ const AllProgramsList = () => {
     setFilteredPrograms(filtered);
   };
 
-  const groupedPrograms = filteredPrograms.reduce((acc, program) => {
-    const categoryName = program.employment_categories?.name || 'Unknown Category';
-    if (!acc[categoryName]) {
-      acc[categoryName] = [];
-    }
-    acc[categoryName].push(program);
-    return acc;
-  }, {} as Record<string, Program[]>);
 
 
   if (loading) {
@@ -130,90 +106,56 @@ const AllProgramsList = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="applications" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="applications">Total Applications</TabsTrigger>
-          <TabsTrigger value="admin">Admin Panel</TabsTrigger>
-          <TabsTrigger value="table">
-            <TableIcon className="h-4 w-4 mr-2" />
-            Table
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="applications" className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-center text-2xl">Total Applications Count</CardTitle>
-              <CardDescription className="text-center">
-                Total number of employment registrations received
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className="text-6xl font-bold text-primary mb-4">{totalApplications}</div>
-                <p className="text-lg text-muted-foreground">Total Applications</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="admin" className="space-y-6">
-          <AdminPanel />
-        </TabsContent>
-
-        <TabsContent value="table">
-          <Card>
-            <CardHeader>
-              <CardTitle>Programs Table</CardTitle>
-              <CardDescription>All programs with detailed information</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Program Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Conditions</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPrograms.map((program) => (
-                    <TableRow key={program.id}>
-                      <TableCell className="font-medium">{program.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">
-                          {program.employment_categories?.name || 'Unknown'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <div className="truncate" title={program.description}>
-                          {program.description || 'No description'}
-                        </div>
-                      </TableCell>
-                      <TableCell className="max-w-xs">
-                        <div className="truncate" title={program.conditions}>
-                          {program.conditions || 'No conditions'}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigate(`/category/${program.category_id}`)}
-                        >
-                          View Category
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card>
+        <CardHeader>
+          <CardTitle>Programs Table</CardTitle>
+          <CardDescription>All programs with detailed information</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Program Name</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead>Conditions</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPrograms.map((program) => (
+                <TableRow key={program.id}>
+                  <TableCell className="font-medium">{program.name}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline">
+                      {program.employment_categories?.name || 'Unknown'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <div className="truncate" title={program.description}>
+                      {program.description || 'No description'}
+                    </div>
+                  </TableCell>
+                  <TableCell className="max-w-xs">
+                    <div className="truncate" title={program.conditions}>
+                      {program.conditions || 'No conditions'}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate(`/category/${program.category_id}`)}
+                    >
+                      View Category
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {filteredPrograms.length === 0 && !loading && (
         <div className="text-center py-12">
