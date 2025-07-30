@@ -16,11 +16,6 @@ interface Registration {
   registration_date: string;
   status: string;
   panchayath?: string;
-  programs?: {
-    name: string;
-    description?: string;
-    conditions?: string;
-  } | null;
   registered_clients: {
     name: string;
     customer_id: string;
@@ -72,11 +67,6 @@ const RegistrationsView = () => {
           employment_categories (
             name,
             description
-          ),
-          programs (
-            name,
-            description,
-            conditions
           )
         `)
         .order("registration_date", { ascending: false });
@@ -150,9 +140,6 @@ const RegistrationsView = () => {
       'Customer ID': reg.registered_clients?.customer_id || '',
       'Mobile Number': reg.mobile_number || '',
       'Category': reg.employment_categories?.name || '',
-      'Program': reg.programs?.name || '',
-      'Program Description': reg.programs?.description || '',
-      'Program Conditions': reg.programs?.conditions || '',
       'District': reg.registered_clients?.district || '',
       'Panchayath': reg.registered_clients?.panchayath || '',
       'Agent': reg.registered_clients?.agent_pro || '',
@@ -352,7 +339,6 @@ const RegistrationsView = () => {
                     <TableHead>Customer ID</TableHead>
                     <TableHead>Mobile</TableHead>
                     <TableHead>Category</TableHead>
-                    <TableHead>Program</TableHead>
                     <TableHead>District</TableHead>
                     <TableHead>Panchayath</TableHead>
                     <TableHead>Agent</TableHead>
@@ -370,23 +356,6 @@ const RegistrationsView = () => {
                       <TableCell>{registration.registered_clients?.customer_id}</TableCell>
                       <TableCell>{registration.mobile_number}</TableCell>
                       <TableCell>{registration.employment_categories?.name}</TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{registration.programs?.name || 'N/A'}</div>
-                          {registration.programs?.description && (
-                            <div className="text-sm text-muted-foreground truncate max-w-xs" title={registration.programs.description}>
-                              {registration.programs.description}
-                            </div>
-                          )}
-                          {registration.programs?.conditions && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              <Badge variant="outline" className="text-xs">
-                                Conditions: {registration.programs.conditions}
-                              </Badge>
-                            </div>
-                          )}
-                        </div>
-                      </TableCell>
                       <TableCell>{registration.registered_clients?.district}</TableCell>
                       <TableCell>{registration.registered_clients?.panchayath || 'N/A'}</TableCell>
                       <TableCell>{registration.registered_clients?.agent_pro}</TableCell>

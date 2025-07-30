@@ -7,9 +7,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2, FolderPlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface Category {
   id: string;
@@ -31,6 +32,7 @@ const CategoriesManagement = () => {
     is_active: true
   });
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchCategories();
@@ -207,13 +209,22 @@ const CategoriesManagement = () => {
                 Manage employment categories and their availability
               </CardDescription>
             </div>
-            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-              <DialogTrigger asChild>
-                <Button onClick={() => openDialog()} className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Add Category
-                </Button>
-              </DialogTrigger>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => navigate('/add-subproject')} 
+                variant="outline" 
+                className="flex items-center gap-2"
+              >
+                <FolderPlus className="h-4 w-4" />
+                Add Sub-Projects
+              </Button>
+              <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button onClick={() => openDialog()} className="flex items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add Category
+                  </Button>
+                </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
@@ -264,6 +275,7 @@ const CategoriesManagement = () => {
                 </form>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
