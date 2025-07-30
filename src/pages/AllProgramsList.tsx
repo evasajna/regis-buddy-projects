@@ -123,8 +123,8 @@ const AllProgramsList = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredPrograms.map((program) => (
-                <TableRow key={program.id}>
+              {filteredPrograms.map((program, index) => (
+                <TableRow key={program.id} className={index % 2 === 0 ? "bg-muted/20" : "bg-background"}>
                   <TableCell className="font-medium">{program.name}</TableCell>
                   <TableCell>
                     <Badge variant="outline">
