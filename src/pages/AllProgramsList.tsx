@@ -9,7 +9,7 @@ import { ArrowLeft, Search, BarChart3, TableIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import AdminPanel from "@/components/AdminPanel";
 
 interface Program {
   id: string;
@@ -30,9 +30,11 @@ const AllProgramsList = () => {
   const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [totalApplications, setTotalApplications] = useState(0);
 
   useEffect(() => {
     fetchPrograms();
+    fetchTotalApplications();
   }, []);
 
   useEffect(() => {
@@ -65,6 +67,19 @@ const AllProgramsList = () => {
     }
   };
 
+  const fetchTotalApplications = async () => {
+    try {
+      const { count, error } = await supabase
+        .from('employment_registrations')
+        .select('*', { count: 'exact', head: true });
+
+      if (error) throw error;
+      setTotalApplications(count || 0);
+    } catch (error) {
+      console.error('Error fetching total applications:', error);
+    }
+  };
+
   const filterPrograms = () => {
     if (!searchTerm) {
       setFilteredPrograms(programs);
@@ -88,13 +103,6 @@ const AllProgramsList = () => {
     return acc;
   }, {} as Record<string, Program[]>);
 
-  // Chart data preparation
-  const chartData = Object.entries(groupedPrograms).map(([categoryName, categoryPrograms]) => ({
-    category: categoryName,
-    count: categoryPrograms.length
-  }));
-
-  const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
   if (loading) {
     return <div className="container mx-auto p-6">Loading...</div>;
@@ -122,139 +130,35 @@ const AllProgramsList = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="cards" className="space-y-6">
+      <Tabs defaultValue="applications" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="cards">Cards View</TabsTrigger>
-          <TabsTrigger value="charts">
-            <BarChart3 className="h-4 w-4 mr-2" />
-            Charts
-          </TabsTrigger>
+          <TabsTrigger value="applications">Total Applications</TabsTrigger>
+          <TabsTrigger value="admin">Admin Panel</TabsTrigger>
           <TabsTrigger value="table">
             <TableIcon className="h-4 w-4 mr-2" />
             Table
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="cards" className="space-y-8">
-          {Object.entries(groupedPrograms).map(([categoryName, categoryPrograms]) => (
-            <div key={categoryName}>
-              <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-xl font-semibold">{categoryName}</h2>
-                <Badge variant="secondary">{categoryPrograms.length} programs</Badge>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {categoryPrograms.map((program) => (
-                  <Card key={program.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader>
-                      <CardTitle className="text-lg">{program.name}</CardTitle>
-                      {program.description && (
-                        <CardDescription className="line-clamp-2">
-                          {program.description}
-                        </CardDescription>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      {program.conditions && (
-                        <div className="mb-3">
-                          <p className="text-sm font-medium mb-1">Conditions:</p>
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {program.conditions}
-                          </p>
-                        </div>
-                      )}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/category/${program.category_id}`)}
-                        className="w-full"
-                      >
-                        View Category
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          ))}
-        </TabsContent>
-
-        <TabsContent value="charts" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Programs by Category (Bar Chart)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={chartData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="category" angle={-45} textAnchor="end" height={100} />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#8884d8" />
-                  </BarChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Programs Distribution (Pie Chart)</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={chartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ category, count }) => `${category}: ${count}`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="count"
-                    >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-          </div>
-
+        <TabsContent value="applications" className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Summary Statistics</CardTitle>
+              <CardTitle className="text-center text-2xl">Total Applications Count</CardTitle>
+              <CardDescription className="text-center">
+                Total number of employment registrations received
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">{filteredPrograms.length}</p>
-                  <p className="text-sm text-muted-foreground">Total Programs</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">{Object.keys(groupedPrograms).length}</p>
-                  <p className="text-sm text-muted-foreground">Categories</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">
-                    {Math.round(filteredPrograms.length / Object.keys(groupedPrograms).length) || 0}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Avg per Category</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">
-                    {Math.max(...Object.values(groupedPrograms).map(p => p.length)) || 0}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Max per Category</p>
-                </div>
+              <div className="text-center">
+                <div className="text-6xl font-bold text-primary mb-4">{totalApplications}</div>
+                <p className="text-lg text-muted-foreground">Total Applications</p>
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="admin" className="space-y-6">
+          <AdminPanel />
         </TabsContent>
 
         <TabsContent value="table">

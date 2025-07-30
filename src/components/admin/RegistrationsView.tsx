@@ -4,7 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Users, Clock, CheckCircle, XCircle, Download, Search } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -13,16 +15,23 @@ interface Registration {
   mobile_number: string;
   registration_date: string;
   status: string;
+  panchayath?: string;
+  programs?: {
+    name: string;
+    description?: string;
+    conditions?: string;
+  } | null;
   registered_clients: {
     name: string;
     customer_id: string;
     district: string;
     agent_pro: string;
-  };
+    panchayath?: string;
+  } | null;
   employment_categories: {
     name: string;
     description: string;
-  };
+  } | null;
 }
 
 const RegistrationsView = () => {
@@ -31,7 +40,10 @@ const RegistrationsView = () => {
   const [loading, setLoading] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterPanchayath, setFilterPanchayath] = useState<string>("all");
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [categories, setCategories] = useState<any[]>([]);
+  const [panchayaths, setPanchayaths] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -41,7 +53,7 @@ const RegistrationsView = () => {
 
   useEffect(() => {
     applyFilters();
-  }, [registrations, filterCategory, filterStatus]);
+  }, [registrations, filterCategory, filterStatus, filterPanchayath, searchTerm]);
 
   const fetchRegistrations = async () => {
     setLoading(true);
@@ -54,17 +66,31 @@ const RegistrationsView = () => {
             name,
             customer_id,
             district,
-            agent_pro
+            agent_pro,
+            panchayath
           ),
           employment_categories (
             name,
             description
+          ),
+          programs (
+            name,
+            description,
+            conditions
           )
         `)
         .order("registration_date", { ascending: false });
 
       if (error) throw error;
-      setRegistrations(data || []);
+      setRegistrations((data as unknown as Registration[]) || []);
+      
+      // Extract unique panchayaths
+      const uniquePanchayaths = [...new Set(
+        (data || [])
+          .map(reg => reg.registered_clients?.panchayath)
+          .filter(Boolean)
+      )] as string[];
+      setPanchayaths(uniquePanchayaths);
     } catch (error) {
       console.error("Error fetching registrations:", error);
       toast({
@@ -102,7 +128,42 @@ const RegistrationsView = () => {
       filtered = filtered.filter(reg => reg.status === filterStatus);
     }
 
+    if (filterPanchayath !== "all") {
+      filtered = filtered.filter(reg => reg.registered_clients?.panchayath === filterPanchayath);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter(reg => 
+        reg.registered_clients?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        reg.registered_clients?.customer_id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        reg.mobile_number.includes(searchTerm) ||
+        reg.employment_categories?.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
     setFilteredRegistrations(filtered);
+  };
+
+  const exportToExcel = () => {
+    const exportData = filteredRegistrations.map(reg => ({
+      'Name': reg.registered_clients?.name || '',
+      'Customer ID': reg.registered_clients?.customer_id || '',
+      'Mobile Number': reg.mobile_number || '',
+      'Category': reg.employment_categories?.name || '',
+      'Program': reg.programs?.name || '',
+      'Program Description': reg.programs?.description || '',
+      'Program Conditions': reg.programs?.conditions || '',
+      'District': reg.registered_clients?.district || '',
+      'Panchayath': reg.registered_clients?.panchayath || '',
+      'Agent': reg.registered_clients?.agent_pro || '',
+      'Registration Date': new Date(reg.registration_date).toLocaleDateString(),
+      'Status': reg.status || ''
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Registrations");
+    XLSX.writeFile(wb, `employment_registrations_${new Date().toISOString().split('T')[0]}.xlsx`);
   };
 
   const updateRegistrationStatus = async (id: string, newStatus: string) => {
@@ -221,7 +282,17 @@ const RegistrationsView = () => {
                 View and manage all employment registration applications
               </CardDescription>
             </div>
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder="Search registrations..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 w-64"
+                />
+              </div>
+              
               <Select value={filterCategory} onValueChange={setFilterCategory}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Filter by category" />
@@ -231,6 +302,20 @@ const RegistrationsView = () => {
                   {categories.map((category) => (
                     <SelectItem key={category.id} value={category.name}>
                       {category.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              <Select value={filterPanchayath} onValueChange={setFilterPanchayath}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by panchayath" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Panchayaths</SelectItem>
+                  {panchayaths.map((panchayath) => (
+                    <SelectItem key={panchayath} value={panchayath}>
+                      {panchayath}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -247,6 +332,11 @@ const RegistrationsView = () => {
                   <SelectItem value="rejected">Rejected</SelectItem>
                 </SelectContent>
               </Select>
+
+              <Button onClick={exportToExcel} className="flex items-center gap-2">
+                <Download className="h-4 w-4" />
+                Export
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -262,7 +352,9 @@ const RegistrationsView = () => {
                     <TableHead>Customer ID</TableHead>
                     <TableHead>Mobile</TableHead>
                     <TableHead>Category</TableHead>
+                    <TableHead>Program</TableHead>
                     <TableHead>District</TableHead>
+                    <TableHead>Panchayath</TableHead>
                     <TableHead>Agent</TableHead>
                     <TableHead>Registration Date</TableHead>
                     <TableHead>Status</TableHead>
@@ -278,7 +370,25 @@ const RegistrationsView = () => {
                       <TableCell>{registration.registered_clients?.customer_id}</TableCell>
                       <TableCell>{registration.mobile_number}</TableCell>
                       <TableCell>{registration.employment_categories?.name}</TableCell>
+                      <TableCell>
+                        <div>
+                          <div className="font-medium">{registration.programs?.name || 'N/A'}</div>
+                          {registration.programs?.description && (
+                            <div className="text-sm text-muted-foreground truncate max-w-xs" title={registration.programs.description}>
+                              {registration.programs.description}
+                            </div>
+                          )}
+                          {registration.programs?.conditions && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              <Badge variant="outline" className="text-xs">
+                                Conditions: {registration.programs.conditions}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
                       <TableCell>{registration.registered_clients?.district}</TableCell>
+                      <TableCell>{registration.registered_clients?.panchayath || 'N/A'}</TableCell>
                       <TableCell>{registration.registered_clients?.agent_pro}</TableCell>
                       <TableCell>
                         {new Date(registration.registration_date).toLocaleDateString()}
