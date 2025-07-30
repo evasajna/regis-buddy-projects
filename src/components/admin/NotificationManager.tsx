@@ -66,7 +66,20 @@ const NotificationManager = () => {
     try {
       setLoading(true);
       
-      // Fetch categories first
+      // Fetch notifications from the database
+      const { data: notificationData, error: notificationError } = await (supabase as any)
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (notificationError) {
+        console.error('Error fetching notifications:', notificationError);
+        setNotifications([]);
+      } else {
+        setNotifications(notificationData || []);
+      }
+
+      // Fetch categories
       const { data: categoryData, error: categoryError } = await supabase
         .from('employment_categories')
         .select('id, name')
@@ -90,32 +103,6 @@ const NotificationManager = () => {
 
       if (programError) throw programError;
       setPrograms(programData || []);
-
-      // Create sample notifications to show the UI (since notifications table doesn't exist yet)
-      const sampleNotifications: Notification[] = [
-        {
-          id: 'sample-1',
-          title: 'Welcome to Employment Programs',
-          message: 'New opportunities are available in the entrepreneurship category. Check out the latest programs!',
-          type: 'category' as const,
-          target_id: categoryData?.[0]?.id || 'sample-target',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        },
-        {
-          id: 'sample-2',
-          title: 'Database Setup Required',
-          message: 'To enable full notification functionality, please create the notifications table in Supabase using the provided SQL.',
-          type: 'category' as const,
-          target_id: categoryData?.[1]?.id || 'sample-target-2',
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-      ];
-      
-      setNotifications(sampleNotifications);
 
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -142,15 +129,47 @@ const NotificationManager = () => {
     }
 
     try {
-      // Show demo message since notifications table doesn't exist yet
-      toast({
-        title: "Demo Mode",
-        description: "Please create the 'notifications' table in Supabase using the provided SQL to enable this feature. Currently showing demo interface.",
-        variant: "destructive",
-      });
-      
+      if (editingNotification) {
+        const { error } = await (supabase as any)
+          .from('notifications')
+          .update({
+            title: formData.title,
+            message: formData.message,
+            type: formData.type,
+            target_id: formData.target_id,
+            is_active: formData.is_active,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', editingNotification.id);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Notification updated successfully",
+        });
+      } else {
+        const { error } = await (supabase as any)
+          .from('notifications')
+          .insert({
+            title: formData.title,
+            message: formData.message,
+            type: formData.type,
+            target_id: formData.target_id,
+            is_active: formData.is_active
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Notification created successfully",
+        });
+      }
+
       setShowDialog(false);
       resetForm();
+      fetchData();
     } catch (error) {
       console.error('Error saving notification:', error);
       toast({
@@ -176,11 +195,28 @@ const NotificationManager = () => {
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this notification?')) return;
 
-    toast({
-      title: "Demo Mode",
-      description: "Please create the 'notifications' table in Supabase to enable this feature.",
-      variant: "destructive",
-    });
+    try {
+      const { error } = await (supabase as any)
+        .from('notifications')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Notification deleted successfully",
+      });
+
+      fetchData();
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete notification",
+        variant: "destructive",
+      });
+    }
   };
 
   const resetForm = () => {
