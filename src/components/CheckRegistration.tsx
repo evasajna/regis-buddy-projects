@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,6 +16,8 @@ const CheckRegistration = () => {
   const [clientData, setClientData] = useState<any>(null);
   const [availablePrograms, setAvailablePrograms] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showApplicationDialog, setShowApplicationDialog] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<{id: string, name: string} | null>(null);
   const { toast } = useToast();
 
   const fetchAvailablePrograms = async (client: any) => {
@@ -219,11 +223,9 @@ const CheckRegistration = () => {
         const hasMultiApproval = existingRegistrations.some(reg => reg.status === 'multi_approved');
         
         if (!hasMultiApproval) {
-          toast({
-            variant: "destructive",
-            title: "Registration Limit Reached", 
-            description: "You can only have one active registration at a time. Please request to stop your current registration or request multi-program approval."
-          });
+          // Show popup dialog instead of toast
+          setSelectedProgram({ id: programId, name: programName });
+          setShowApplicationDialog(true);
           return;
         }
       }
@@ -287,11 +289,45 @@ const CheckRegistration = () => {
     }
   };
 
+  const handleDialogApplication = async () => {
+    if (!selectedProgram || !clientData) return;
+    
+    try {
+      const { error } = await supabase
+        .from('employment_registrations')
+        .insert({
+          client_id: clientData.id,
+          category_id: selectedProgram.id,
+          mobile_number: clientData.mobile_number
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Application Submitted",
+        description: `Your application for "${selectedProgram.name}" has been submitted successfully.`,
+      });
+
+      setShowApplicationDialog(false);
+      setSelectedProgram(null);
+      checkRegistrations();
+    } catch (error) {
+      console.error('Error applying for program:', error);
+      toast({
+        title: "Application Failed",
+        description: "Failed to submit your application. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const reset = () => {
     setMobileNumber("");
     setRegistrations([]);
     setClientData(null);
     setAvailablePrograms([]);
+    setShowApplicationDialog(false);
+    setSelectedProgram(null);
   };
 
   return (
@@ -331,8 +367,8 @@ const CheckRegistration = () => {
             <Tabs defaultValue="details" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="details">Personal Details</TabsTrigger>
-                <TabsTrigger value="registrations">My Registrations ({registrations.length})</TabsTrigger>
                 <TabsTrigger value="programs">Available Programs ({availablePrograms.length})</TabsTrigger>
+                <TabsTrigger value="registrations">My Registrations ({registrations.length})</TabsTrigger>
               </TabsList>
 
               <TabsContent value="details" className="space-y-4">
@@ -474,40 +510,56 @@ const CheckRegistration = () => {
                         </CardDescription>
                       </CardHeader>
                       <CardContent>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {availablePrograms.map((program) => (
-                            <Card key={program.id} className="border-2 border-dashed border-primary/20">
-                              <CardHeader>
-                                <CardTitle className="text-base">{program.name}</CardTitle>
-                                <div className="flex gap-2">
-                                  <Badge variant="secondary">{program.employment_categories?.name}</Badge>
-                                  {program.sub_projects && (
-                                    <Badge variant="outline">{program.sub_projects.name}</Badge>
-                                  )}
-                                </div>
-                              </CardHeader>
-                              <CardContent>
-                                {program.description && (
-                                  <p className="text-sm text-muted-foreground mb-3">
-                                    {program.description}
-                                  </p>
-                                )}
-                                {program.conditions && (
-                                  <div className="mb-3">
-                                    <Label className="text-sm font-medium">Conditions:</Label>
-                                    <p className="text-sm text-muted-foreground">{program.conditions}</p>
-                                  </div>
-                                )}
-                                <Button 
-                                  size="sm" 
-                                  className="w-full"
-                                  onClick={() => applyForProgram(program.category_id, program.name)}
-                                >
-                                  Apply for this Program
-                                </Button>
-                              </CardContent>
-                            </Card>
-                          ))}
+                        <div className="rounded-md border overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Program Name</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead>Sub-Project</TableHead>
+                                <TableHead>Description</TableHead>
+                                <TableHead>Conditions</TableHead>
+                                <TableHead>Action</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {availablePrograms.map((program) => (
+                                <TableRow key={program.id}>
+                                  <TableCell className="font-medium">
+                                    {program.name}
+                                  </TableCell>
+                                  <TableCell>
+                                    <Badge variant="secondary">{program.employment_categories?.name}</Badge>
+                                  </TableCell>
+                                  <TableCell>
+                                    {program.sub_projects ? (
+                                      <Badge variant="outline">{program.sub_projects.name}</Badge>
+                                    ) : (
+                                      "-"
+                                    )}
+                                  </TableCell>
+                                  <TableCell className="max-w-xs">
+                                    <div className="truncate" title={program.description}>
+                                      {program.description || "-"}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="max-w-xs">
+                                    <div className="truncate" title={program.conditions}>
+                                      {program.conditions || "-"}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <Button 
+                                      size="sm" 
+                                      onClick={() => applyForProgram(program.category_id, program.name)}
+                                    >
+                                      Apply
+                                    </Button>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
                         </div>
                       </CardContent>
                     </Card>
@@ -524,6 +576,36 @@ const CheckRegistration = () => {
               </TabsContent>
             </Tabs>
           )}
+
+          {/* Application Confirmation Dialog */}
+          <Dialog open={showApplicationDialog} onOpenChange={setShowApplicationDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Multiple Program Application</DialogTitle>
+                <DialogDescription>
+                  You can only apply for one program at a time. You currently have an active registration.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <p className="text-sm text-muted-foreground mb-4">
+                  To proceed with applying for "{selectedProgram?.name}", you need to either:
+                </p>
+                <ul className="list-disc list-inside space-y-2 text-sm">
+                  <li>Request to stop your current registration first</li>
+                  <li>Request multi-program approval from admin</li>
+                  <li>Or apply anyway (admin will review your case)</li>
+                </ul>
+              </div>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setShowApplicationDialog(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleDialogApplication}>
+                  Apply Anyway
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </CardContent>
       </Card>
     </div>
