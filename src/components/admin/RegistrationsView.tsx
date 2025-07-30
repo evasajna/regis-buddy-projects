@@ -5,8 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Users, Clock, CheckCircle, XCircle, Download, Search } from "lucide-react";
+import { Users, Clock, CheckCircle, XCircle, Download, Search, FileText } from "lucide-react";
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -188,6 +190,54 @@ const RegistrationsView = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Registrations");
     XLSX.writeFile(wb, `employment_registrations_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    // Add title
+    doc.setFontSize(18);
+    doc.text('Employment Registrations Report', 14, 22);
+    
+    // Add date
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 30);
+    doc.text(`Total Records: ${filteredRegistrations.length}`, 14, 35);
+    
+    // Prepare table data
+    const tableData = filteredRegistrations.map(reg => [
+      reg.registered_clients?.name || '',
+      reg.registered_clients?.customer_id || '',
+      reg.mobile_number || '',
+      reg.employment_categories?.name || '',
+      reg.available_programs?.map(p => p.name).join(', ') || 'None',
+      reg.registered_clients?.district || '',
+      reg.registered_clients?.panchayath || '',
+      new Date(reg.registration_date).toLocaleDateString(),
+      reg.status || ''
+    ]);
+
+    // Add table
+    (doc as any).autoTable({
+      head: [['Name', 'Customer ID', 'Mobile', 'Category', 'Programs', 'District', 'Panchayath', 'Date', 'Status']],
+      body: tableData,
+      startY: 45,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [52, 152, 219] },
+      columnStyles: {
+        0: { cellWidth: 25 },
+        1: { cellWidth: 20 },
+        2: { cellWidth: 20 },
+        3: { cellWidth: 25 },
+        4: { cellWidth: 30 },
+        5: { cellWidth: 20 },
+        6: { cellWidth: 20 },
+        7: { cellWidth: 15 },
+        8: { cellWidth: 15 }
+      }
+    });
+    
+    doc.save(`employment_registrations_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   const updateRegistrationStatus = async (id: string, newStatus: string) => {
@@ -388,7 +438,11 @@ const RegistrationsView = () => {
 
               <Button onClick={exportToExcel} className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
-                Export
+                Export Excel
+              </Button>
+              <Button onClick={exportToPDF} variant="outline" className="flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Export PDF
               </Button>
             </div>
           </div>
