@@ -27,6 +27,14 @@ interface Registration {
     name: string;
     description: string;
   } | null;
+  programs: {
+    name: string;
+    description?: string;
+    conditions?: string;
+    sub_projects?: {
+      name: string;
+    };
+  } | null;
 }
 
 const RegistrationsView = () => {
@@ -67,6 +75,14 @@ const RegistrationsView = () => {
           employment_categories (
             name,
             description
+          ),
+          programs (
+            name,
+            description,
+            conditions,
+            sub_projects (
+              name
+            )
           )
         `)
         .order("registration_date", { ascending: false });
@@ -140,6 +156,8 @@ const RegistrationsView = () => {
       'Customer ID': reg.registered_clients?.customer_id || '',
       'Mobile Number': reg.mobile_number || '',
       'Category': reg.employment_categories?.name || '',
+      'Program': reg.programs?.name || '',
+      'Sub-Project': reg.programs?.sub_projects?.name || '',
       'District': reg.registered_clients?.district || '',
       'Panchayath': reg.registered_clients?.panchayath || '',
       'Agent': reg.registered_clients?.agent_pro || '',
@@ -339,6 +357,7 @@ const RegistrationsView = () => {
                     <TableHead>Customer ID</TableHead>
                     <TableHead>Mobile</TableHead>
                     <TableHead>Category</TableHead>
+                    <TableHead>Program</TableHead>
                     <TableHead>District</TableHead>
                     <TableHead>Panchayath</TableHead>
                     <TableHead>Agent</TableHead>
@@ -356,6 +375,20 @@ const RegistrationsView = () => {
                       <TableCell>{registration.registered_clients?.customer_id}</TableCell>
                       <TableCell>{registration.mobile_number}</TableCell>
                       <TableCell>{registration.employment_categories?.name}</TableCell>
+                      <TableCell>
+                        {registration.programs ? (
+                          <div className="space-y-1">
+                            <div className="font-medium text-sm">{registration.programs.name}</div>
+                            {registration.programs.sub_projects && (
+                              <Badge variant="outline" className="text-xs">
+                                {registration.programs.sub_projects.name}
+                              </Badge>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">No program</span>
+                        )}
+                      </TableCell>
                       <TableCell>{registration.registered_clients?.district}</TableCell>
                       <TableCell>{registration.registered_clients?.panchayath || 'N/A'}</TableCell>
                       <TableCell>{registration.registered_clients?.agent_pro}</TableCell>

@@ -164,9 +164,9 @@ const CategoryDetails = () => {
           <Plus className="h-4 w-4 mr-2" />
           Add New Program
         </Button>
-        <Button variant="outline" onClick={() => navigate('/?tab=admin&section=categories')}>
+        <Button variant="outline" onClick={() => navigate(`/add-sub-project?category=${category.id}`)}>
           <Plus className="h-4 w-4 mr-2" />
-          Admin Panel - Employment Categories
+          Add Sub-Project
         </Button>
       </div>
 
