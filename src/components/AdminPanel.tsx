@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -220,31 +221,29 @@ const ApplicationsOverview = () => {
                   No registrations found for this category.
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {categoryRegistrations.map((registration) => (
-                    <Card key={registration.id} className="p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Client Name</label>
-                          <p className="font-semibold">{registration.client_name}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Customer ID</label>
-                          <p className="font-semibold">{registration.customer_id}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Mobile Number</label>
-                          <p className="font-semibold">{registration.mobile_number}</p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Registration Date</label>
-                          <p className="font-semibold">
+                <div className="rounded-md border overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Client Name</TableHead>
+                        <TableHead>Customer ID</TableHead>
+                        <TableHead>Mobile Number</TableHead>
+                        <TableHead>Registration Date</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {categoryRegistrations.map((registration) => (
+                        <TableRow key={registration.id}>
+                          <TableCell className="font-medium">
+                            {registration.client_name}
+                          </TableCell>
+                          <TableCell>{registration.customer_id}</TableCell>
+                          <TableCell>{registration.mobile_number}</TableCell>
+                          <TableCell>
                             {new Date(registration.registration_date).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Status</label>
-                          <div>
+                          </TableCell>
+                          <TableCell>
                             <Badge 
                               variant={
                                 registration.status === 'active' ? 'default' :
@@ -254,11 +253,11 @@ const ApplicationsOverview = () => {
                             >
                               {registration.status || 'active'}
                             </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    </Card>
-                  ))}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
                 </div>
               )}
             </div>
