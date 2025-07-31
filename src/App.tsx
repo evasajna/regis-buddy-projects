@@ -11,6 +11,7 @@ import AddProgram from "./pages/AddProgram";
 import AddSubProject from "./pages/AddSubProject";
 import AllProgramsList from "./pages/AllProgramsList";
 import AdminLogin from "./pages/AdminLogin";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
             <Route path="/add-sub-project" element={<ProtectedRoute><AddSubProject /></ProtectedRoute>} />
             <Route path="/all-programs" element={<AllProgramsList />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

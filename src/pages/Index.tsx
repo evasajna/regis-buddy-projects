@@ -213,7 +213,7 @@ const Index = () => {
               </Button>
               {admin ? (
                 <>
-                  <Button variant={activeTab === "admin" ? "default" : "ghost"} onClick={() => setActiveTab("admin")} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "admin" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
+                  <Button variant={activeTab === "admin" ? "default" : "ghost"} onClick={() => navigate('/admin')} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "admin" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
                     <Shield className="h-4 w-4" />
                     Admin
                   </Button>
