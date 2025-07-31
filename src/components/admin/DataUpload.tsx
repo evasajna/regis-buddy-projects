@@ -161,10 +161,9 @@ const DataUpload = () => {
         .from("file_uploads")
         .insert({
           filename: file.name,
-          file_path: `/uploads/${file.name}`,
-          file_size: file.size,
-          mime_type: file.type,
-          uploaded_by: 'admin'
+          file_type: file.type,
+          uploaded_by: 'admin',
+          records_count: 0
         })
         .select()
         .single();

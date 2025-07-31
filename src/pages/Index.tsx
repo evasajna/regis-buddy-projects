@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Users, Briefcase, Shield, Home, List, Plus, Eye } from "lucide-react";
+import { Users, Briefcase, Shield, Home, List, Plus, Eye, LogOut } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/components/AuthContext";
 import AdminPanel from "@/components/AdminPanel";
 import EmploymentRegistration from "@/components/EmploymentRegistration";
 import CheckRegistration from "@/components/CheckRegistration";
@@ -31,9 +32,8 @@ const Index = () => {
   const [subProjects, setSubProjects] = useState<Record<string, SubProject[]>>({});
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { admin, logout } = useAuth();
   useEffect(() => {
     if (activeTab === "home") {
       fetchCategoriesData();
@@ -211,10 +211,23 @@ const Index = () => {
                 <Users className="h-4 w-4" />
                 Check Status
               </Button>
-              <Button variant={activeTab === "admin" ? "default" : "ghost"} onClick={() => setActiveTab("admin")} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "admin" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
-                <Shield className="h-4 w-4" />
-                Admin
-              </Button>
+              {admin ? (
+                <>
+                  <Button variant={activeTab === "admin" ? "default" : "ghost"} onClick={() => setActiveTab("admin")} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "admin" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
+                    <Shield className="h-4 w-4" />
+                    Admin
+                  </Button>
+                  <Button variant="outline" onClick={logout} className="flex items-center gap-2 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200">
+                    <LogOut className="h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <Button variant="outline" onClick={() => navigate('/admin/login')} className="flex items-center gap-2 hover:bg-primary/10 transition-all duration-200">
+                  <Shield className="h-4 w-4" />
+                  Admin Login
+                </Button>
+              )}
             </div>
             
             {/* Mobile Navigation */}
