@@ -92,35 +92,122 @@ export type Database = {
       file_uploads: {
         Row: {
           created_at: string
-          file_path: string
-          file_size: number | null
+          file_type: string
           filename: string
           id: string
-          mime_type: string | null
+          records_count: number
           updated_at: string
+          upload_date: string
           uploaded_by: string | null
         }
         Insert: {
           created_at?: string
-          file_path: string
-          file_size?: number | null
+          file_type: string
           filename: string
           id?: string
-          mime_type?: string | null
+          records_count?: number
           updated_at?: string
+          upload_date?: string
           uploaded_by?: string | null
         }
         Update: {
           created_at?: string
-          file_path?: string
-          file_size?: number | null
+          file_type?: string
           filename?: string
           id?: string
-          mime_type?: string | null
+          records_count?: number
           updated_at?: string
+          upload_date?: string
           uploaded_by?: string | null
         }
         Relationships: []
+      }
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          message: string
+          target_id: string
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message: string
+          target_id: string
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          message?: string
+          target_id?: string
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      program_stop_requests: {
+        Row: {
+          admin_notes: string | null
+          client_id: string | null
+          created_at: string
+          current_category: string | null
+          id: string
+          mobile_number: string
+          registration_id: string | null
+          request_type: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          current_category?: string | null
+          id?: string
+          mobile_number: string
+          registration_id?: string | null
+          request_type?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          client_id?: string | null
+          created_at?: string
+          current_category?: string | null
+          id?: string
+          mobile_number?: string
+          registration_id?: string | null
+          request_type?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "program_stop_requests_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "registered_clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "program_stop_requests_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "employment_registrations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       programs: {
         Row: {
@@ -129,7 +216,6 @@ export type Database = {
           created_at: string
           description: string | null
           id: string
-          is_active: boolean | null
           name: string
           sub_project_id: string | null
           updated_at: string
@@ -140,7 +226,6 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean | null
           name: string
           sub_project_id?: string | null
           updated_at?: string
@@ -151,21 +236,20 @@ export type Database = {
           created_at?: string
           description?: string | null
           id?: string
-          is_active?: boolean | null
           name?: string
           sub_project_id?: string | null
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "programs_category_id_fkey"
+            foreignKeyName: "fk_programs_category"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "employment_categories"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "programs_sub_project_id_fkey"
+            foreignKeyName: "fk_programs_sub_project"
             columns: ["sub_project_id"]
             isOneToOne: false
             referencedRelation: "sub_projects"
@@ -181,6 +265,7 @@ export type Database = {
           created_at: string
           customer_id: string
           district: string | null
+          file_upload_id: string | null
           id: string
           mobile_number: string
           name: string
@@ -197,6 +282,7 @@ export type Database = {
           created_at?: string
           customer_id: string
           district?: string | null
+          file_upload_id?: string | null
           id?: string
           mobile_number: string
           name: string
@@ -213,6 +299,7 @@ export type Database = {
           created_at?: string
           customer_id?: string
           district?: string | null
+          file_upload_id?: string | null
           id?: string
           mobile_number?: string
           name?: string
@@ -222,14 +309,21 @@ export type Database = {
           updated_at?: string
           ward?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "registered_clients_file_upload_id_fkey"
+            columns: ["file_upload_id"]
+            isOneToOne: false
+            referencedRelation: "file_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sub_projects: {
         Row: {
           category_id: string
           created_at: string
           id: string
-          is_active: boolean | null
           name: string
           updated_at: string
         }
@@ -237,7 +331,6 @@ export type Database = {
           category_id: string
           created_at?: string
           id?: string
-          is_active?: boolean | null
           name: string
           updated_at?: string
         }
@@ -245,13 +338,12 @@ export type Database = {
           category_id?: string
           created_at?: string
           id?: string
-          is_active?: boolean | null
           name?: string
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "sub_projects_category_id_fkey"
+            foreignKeyName: "fk_sub_projects_category"
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "employment_categories"
