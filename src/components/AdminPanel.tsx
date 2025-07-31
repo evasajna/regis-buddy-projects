@@ -7,12 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { X } from "lucide-react";
+import { useAuth } from "@/components/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { X, Home, LogOut } from "lucide-react";
 import DataUpload from "./admin/DataUpload";
 import CategoriesManagement from "./admin/CategoriesManagement";
 import RegistrationsView from "./admin/RegistrationsView";
 import StopRequestsManagement from "./admin/StopRequestsManagement";
 import NotificationManager from "./admin/NotificationManager";
+import AdminManagement from "./admin/AdminManagement";
+import PermissionManager from "./admin/PermissionManager";
 
 const ApplicationsOverview = () => {
   const [totalApplications, setTotalApplications] = useState(0);
@@ -270,23 +274,44 @@ const ApplicationsOverview = () => {
 };
 
 const AdminPanel = () => {
+  const { admin, logout } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
-        <h2 className="text-4xl font-bold text-primary mb-2">Admin Panel</h2>
-        <p className="text-lg text-muted-foreground">Comprehensive management system for self-employment registration</p>
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-4xl font-bold text-primary mb-2">Admin Panel</h2>
+            <p className="text-lg text-muted-foreground">Comprehensive management system for self-employment registration</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate('/')}>
+              <Home className="h-4 w-4 mr-2" />
+              Home
+            </Button>
+            <Button variant="destructive" onClick={logout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
+        </div>
+        {admin && (
+          <div className="mt-4 p-3 bg-muted rounded-lg">
+            <p className="text-sm text-muted-foreground">
+              Logged in as: <span className="font-medium text-foreground">{admin.username}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       <Tabs defaultValue="applications" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-6">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
           <TabsTrigger value="applications" className="text-sm">
             📊 Applications
           </TabsTrigger>
           <TabsTrigger value="registrations" className="text-sm">
             👥 Registrations
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="text-sm">
-            🔔 Notifications
           </TabsTrigger>
           <TabsTrigger value="categories" className="text-sm">
             🏷️ Categories
@@ -296,6 +321,15 @@ const AdminPanel = () => {
           </TabsTrigger>
           <TabsTrigger value="stop-requests" className="text-sm">
             ⏹️ Stop Requests
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="text-sm">
+            🔔 Notifications
+          </TabsTrigger>
+          <TabsTrigger value="admin-mgmt" className="text-sm">
+            🔧 Admin Mgmt
+          </TabsTrigger>
+          <TabsTrigger value="permissions" className="text-sm">
+            🔐 Permissions
           </TabsTrigger>
         </TabsList>
         
@@ -331,21 +365,6 @@ const AdminPanel = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="notifications" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                🔔 Notification Center
-              </CardTitle>
-              <CardDescription>
-                Create and manage notifications for categories, programs, and sub-projects
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <NotificationManager />
-            </CardContent>
-          </Card>
-        </TabsContent>
         
         <TabsContent value="categories" className="space-y-6">
           <Card>
@@ -391,6 +410,54 @@ const AdminPanel = () => {
             </CardHeader>
             <CardContent>
               <StopRequestsManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🔔 Notification Center
+              </CardTitle>
+              <CardDescription>
+                Create and manage notifications for categories, programs, and sub-projects
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <NotificationManager />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="admin-mgmt" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🔧 Admin Management
+              </CardTitle>
+              <CardDescription>
+                Add, edit, and delete administrator accounts
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminManagement />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="permissions" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🔐 Permission Manager
+              </CardTitle>
+              <CardDescription>
+                Manage user roles and access permissions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PermissionManager />
             </CardContent>
           </Card>
         </TabsContent>
