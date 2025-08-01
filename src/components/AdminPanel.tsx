@@ -115,7 +115,8 @@ const ApplicationsOverview = () => {
             customer_id
           )
         `)
-        .eq('category_id', categoryId);
+        .eq('category_id', categoryId)
+        .not('status', 'in', '("stopped","stop_requested")');
 
       if (error) throw error;
 
@@ -294,46 +295,32 @@ const AdminPanel = () => {
       bgColor: "bg-green-500"
     },
     {
-      id: "panchayaths",
-      title: "Panchayaths", 
-      icon: "🏛️",
-      description: "Location management",
+      id: "uploads",
+      title: "Data Upload", 
+      icon: "📁",
+      description: "Upload client data",
       bgColor: "bg-purple-500"
     },
     {
-      id: "announcements",
-      title: "Announcements",
-      icon: "📢", 
-      description: "System notifications",
+      id: "stop-requests",
+      title: "Stop Requests",
+      icon: "⏹️", 
+      description: "Handle stop requests",
       bgColor: "bg-orange-500"
     },
     {
-      id: "utilities",
-      title: "Utilities",
-      icon: "⚙️",
-      description: "System utilities",
+      id: "announcements",
+      title: "Notifications",
+      icon: "🔔",
+      description: "System notifications",
       bgColor: "bg-teal-500"
-    },
-    {
-      id: "accounts",
-      title: "Accounts",
-      icon: "👤",
-      description: "User account management",
-      bgColor: "bg-indigo-500"
-    },
-    {
-      id: "reports",
-      title: "Reports", 
-      icon: "📊",
-      description: "Analytics and reports",
-      bgColor: "bg-red-500"
     },
     {
       id: "admin-control",
       title: "Admin Control",
       icon: "🔐",
       description: "Administrative controls",
-      bgColor: "bg-gray-600"
+      bgColor: "bg-red-500"
     }
   ];
 
@@ -418,10 +405,7 @@ const AdminPanel = () => {
       </div>
 
       <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
-          <TabsTrigger value="applications" className="text-sm">
-            📊 Applications
-          </TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-6 mb-6">
           <TabsTrigger value="registrations" className="text-sm">
             👥 Registrations
           </TabsTrigger>
@@ -437,29 +421,11 @@ const AdminPanel = () => {
           <TabsTrigger value="announcements" className="text-sm">
             🔔 Notifications
           </TabsTrigger>
-          <TabsTrigger value="admin-mgmt" className="text-sm">
-            🔧 Admin Mgmt
-          </TabsTrigger>
           <TabsTrigger value="admin-control" className="text-sm">
-            🔐 Permissions
+            🔐 Admin Control
           </TabsTrigger>
         </TabsList>
         
-        <TabsContent value="applications" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                📊 Applications Overview
-              </CardTitle>
-              <CardDescription>
-                Monitor and analyze all employment registration applications
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ApplicationsOverview />
-            </CardContent>
-          </Card>
-        </TabsContent>
         
         <TabsContent value="registrations" className="space-y-6">
           <Card>
@@ -542,34 +508,21 @@ const AdminPanel = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="admin-mgmt" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                🔧 Admin Management
-              </CardTitle>
-              <CardDescription>
-                Add, edit, and delete administrator accounts
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <AdminManagement />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
         <TabsContent value="admin-control" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                🔐 Permission Manager
+                🔐 Admin Control
               </CardTitle>
               <CardDescription>
-                Manage user roles and access permissions
+                Administrative controls and permission management
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <PermissionManager />
+              <div className="space-y-6">
+                <AdminManagement />
+                <PermissionManager />
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
