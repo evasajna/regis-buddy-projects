@@ -21,6 +21,7 @@ const CheckRegistration = () => {
   const [loading, setLoading] = useState(false);
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
   const [showBlockingDialog, setShowBlockingDialog] = useState(false);
+  const [blockingTitle, setBlockingTitle] = useState("Dual Application Not Allowed");
   const [blockingMessage, setBlockingMessage] = useState("");
   const [selectedProgram, setSelectedProgram] = useState<{id: string, name: string} | null>(null);
   const [experience, setExperience] = useState("");
@@ -367,6 +368,7 @@ const CheckRegistration = () => {
     setAvailablePrograms([]);
     setShowApplicationDialog(false);
     setShowBlockingDialog(false);
+    setBlockingTitle("Dual Application Not Allowed");
     setBlockingMessage("");
     setSelectedProgram(null);
     setExperience("");
@@ -729,53 +731,48 @@ const CheckRegistration = () => {
             </DialogContent>
           </Dialog>
 
-          {/* Dual Application Blocking Dialog */}
+          {/* Simple Dual Application Blocking Dialog */}
           <Dialog open={showBlockingDialog} onOpenChange={setShowBlockingDialog}>
-            <DialogContent className="max-w-lg">
+            <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle className="text-xl text-red-600 flex items-center gap-2">
-                  🚫 Dual Application Not Allowed
-                </DialogTitle>
-                <DialogDescription>
-                  According to our employment registration policy
-                </DialogDescription>
-              </DialogHeader>
-              <div className="py-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <div className="space-y-3">
-                    <Textarea
-                      value={blockingMessage}
-                      onChange={(e) => setBlockingMessage(e.target.value)}
-                      className="min-h-[120px] border-red-200 focus:border-red-400"
-                      readOnly
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="blockingTitle" className="text-sm font-medium">
+                    Dialog Title
+                  </Label>
+                  <Input
+                    id="blockingTitle"
+                    value={blockingTitle}
+                    onChange={(e) => setBlockingTitle(e.target.value)}
+                    className="text-lg font-medium"
+                    placeholder="Enter dialog title"
+                  />
                 </div>
-                
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h4 className="font-medium text-blue-900 mb-2">💡 What you can do:</h4>
-                  <ul className="space-y-2 text-sm text-blue-800">
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600">•</span>
-                      <span>Use the <strong>"Request Stop/Multi-Program"</strong> button in your registrations tab</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600">•</span>
-                      <span>Complete your current program before applying for new ones</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-blue-600">•</span>
-                      <span>Contact support if you believe this is an error</span>
-                    </li>
-                  </ul>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="blockingMessage" className="text-sm font-medium">
+                    Message Content
+                  </Label>
+                  <Textarea
+                    id="blockingMessage"
+                    value={blockingMessage}
+                    onChange={(e) => setBlockingMessage(e.target.value)}
+                    className="min-h-[120px] mt-2"
+                    placeholder="Enter blocking message content"
+                  />
                 </div>
               </div>
-              <DialogFooter>
+              <DialogFooter className="flex gap-2">
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowBlockingDialog(false)}
+                >
+                  Cancel
+                </Button>
                 <Button 
                   onClick={() => setShowBlockingDialog(false)}
-                  className="w-full"
                 >
-                  I Understand
+                  OK
                 </Button>
               </DialogFooter>
             </DialogContent>
