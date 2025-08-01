@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { ChevronDown, ChevronUp, Plus, Edit, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import TranslatedText from "@/components/TranslatedText";
 interface Program {
   id: string;
   name: string;
@@ -113,8 +114,12 @@ const CategoryCard = ({
         
         <div className="flex items-center justify-between mt-3">
           <div className="flex gap-2">
-            <Badge variant="secondary" className={cardColors.programsBadge}>{programs.length} Programs</Badge>
-            <Badge variant="outline" className={cardColors.subProjectsBadge}>{subProjects.length} Sub-projects</Badge>
+            <Badge variant="secondary" className={cardColors.programsBadge}>
+              {programs.length} <TranslatedText id="card.programs" showMalayalam={false} />
+            </Badge>
+            <Badge variant="outline" className={cardColors.subProjectsBadge}>
+              {subProjects.length} <TranslatedText id="card.subProjects" showMalayalam={false} />
+            </Badge>
           </div>
           <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -125,7 +130,9 @@ const CategoryCard = ({
       {isExpanded && <CardContent className="pt-0">
           <div className="space-y-4">
             {programs.length > 0 && <div>
-                <h4 className="font-medium text-sm mb-2">Recent Programs:</h4>
+                <h4 className="font-medium text-sm mb-2">
+                  <TranslatedText id="card.recentPrograms" showMalayalam={false} />
+                </h4>
                 <div className="space-y-2">
                   {programs.slice(0, 3).map(program => <div key={program.id} className="p-2 bg-muted rounded text-sm">
                       <div className="font-medium">{program.name}</div>
@@ -137,7 +144,9 @@ const CategoryCard = ({
               </div>}
 
             {subProjects.length > 0 && <div>
-                <h4 className="font-medium text-sm mb-2">Sub-projects:</h4>
+                <h4 className="font-medium text-sm mb-2">
+                  <TranslatedText id="card.subProjects" showMalayalam={false} />:
+                </h4>
                 <div className="flex flex-wrap gap-1">
                   {subProjects.slice(0, 5).map(subProject => <Badge key={subProject.id} variant="outline" className="text-xs">
                       {subProject.name}
@@ -150,16 +159,16 @@ const CategoryCard = ({
 
             <div className="flex gap-2 pt-2">
               <Button variant="outline" size="sm" onClick={handleViewDetails} className="flex-1">
-                View Details
+                <TranslatedText id="card.viewDetails" showMalayalam={false} />
               </Button>
               {isAdmin && <>
                   <Button variant="outline" size="sm" onClick={() => navigate(`/add-program?category=${category.id}`)}>
                     <Plus className="h-4 w-4 mr-1" />
-                    Program
+                    <TranslatedText id="card.program" showMalayalam={false} />
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => navigate(`/add-sub-project?category=${category.id}`)}>
                     <Plus className="h-4 w-4 mr-1" />
-                    Sub-project
+                    <TranslatedText id="card.subProject" showMalayalam={false} />
                   </Button>
                 </>}
             </div>

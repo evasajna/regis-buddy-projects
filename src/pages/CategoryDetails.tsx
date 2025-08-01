@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, ArrowLeft, Edit, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import TranslatedText from "@/components/TranslatedText";
 
 interface Category {
   id: string;
@@ -149,7 +150,7 @@ const CategoryDetails = () => {
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-6">
         <Button variant="outline" onClick={() => navigate('/')} size="sm">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back
+          <TranslatedText id="common.back" showMalayalam={false} />
         </Button>
         <div className="flex-1">
           <h1 className="text-2xl sm:text-3xl font-bold">{category.name}</h1>
@@ -162,18 +163,22 @@ const CategoryDetails = () => {
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-6">
         <Button onClick={() => navigate(`/add-program?category=${category.id}`)} className="text-sm sm:text-base">
           <Plus className="h-4 w-4 mr-2" />
-          Add New Program
+          <TranslatedText id="hero.addNewProgram" showMalayalam={false} />
         </Button>
         <Button variant="outline" onClick={() => navigate(`/add-sub-project?category=${category.id}`)} className="text-sm sm:text-base">
           <Plus className="h-4 w-4 mr-2" />
-          Add Sub-Project
+          <TranslatedText id="card.subProject" showMalayalam={false} />
         </Button>
       </div>
 
       <Tabs defaultValue="programs" className="w-full">
         <TabsList className="w-full grid grid-cols-2">
-          <TabsTrigger value="programs" className="text-xs sm:text-sm">Programs ({programs.length})</TabsTrigger>
-          <TabsTrigger value="subprojects" className="text-xs sm:text-sm">Sub-projects ({subProjects.length})</TabsTrigger>
+          <TabsTrigger value="programs" className="text-xs sm:text-sm">
+            <TranslatedText id="card.programs" showMalayalam={false} /> ({programs.length})
+          </TabsTrigger>
+          <TabsTrigger value="subprojects" className="text-xs sm:text-sm">
+            <TranslatedText id="card.subProjects" showMalayalam={false} /> ({subProjects.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="programs" className="space-y-4">

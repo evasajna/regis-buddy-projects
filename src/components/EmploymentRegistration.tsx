@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import TranslatedText from "@/components/TranslatedText";
 
 const EmploymentRegistration = () => {
   const [mobileNumber, setMobileNumber] = useState("");
@@ -160,16 +161,20 @@ const EmploymentRegistration = () => {
     <div className="container mx-auto p-4 sm:p-6 max-w-2xl">
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl sm:text-2xl">Employment Registration</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">
+            <TranslatedText id="employment.title" />
+          </CardTitle>
           <CardDescription className="text-sm sm:text-base">
-            Register for employment opportunities with E-Life Society
+            <TranslatedText id="employment.description" />
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 sm:space-y-6">
           {step === "verify" && (
             <div className="space-y-4">
               <div>
-                <Label htmlFor="mobile">Mobile Number</Label>
+                <Label htmlFor="mobile">
+                  <TranslatedText id="employment.mobileNumber" showMalayalam={false} />
+                </Label>
                 <Input
                   id="mobile"
                   type="tel"
@@ -179,7 +184,11 @@ const EmploymentRegistration = () => {
                 />
               </div>
               <Button onClick={verifyMobileNumber} disabled={loading} className="w-full">
-                {loading ? "Verifying..." : "Verify Mobile Number"}
+                {loading ? (
+                  <TranslatedText id="common.loading" showMalayalam={false} />
+                ) : (
+                  <TranslatedText id="employment.verifyMobile" showMalayalam={false} />
+                )}
               </Button>
             </div>
           )}
@@ -203,7 +212,9 @@ const EmploymentRegistration = () => {
               </div>
 
               <div>
-                <Label>Select Employment Category</Label>
+                <Label>
+                  <TranslatedText id="employment.selectCategory" showMalayalam={false} />
+                </Label>
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a category" />
@@ -225,14 +236,18 @@ const EmploymentRegistration = () => {
 
               <div className="flex gap-4">
                 <Button onClick={resetForm} variant="outline" className="flex-1">
-                  Back
+                  <TranslatedText id="common.back" showMalayalam={false} />
                 </Button>
                 <Button 
                   onClick={submitRegistration} 
                   disabled={!selectedCategory || loading}
                   className="flex-1"
                 >
-                  {loading ? "Submitting..." : "Submit Registration"}
+                  {loading ? (
+                    <TranslatedText id="common.loading" showMalayalam={false} />
+                  ) : (
+                    <TranslatedText id="employment.submitRegistration" showMalayalam={false} />
+                  )}
                 </Button>
               </div>
             </div>

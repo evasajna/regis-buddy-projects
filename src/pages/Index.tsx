@@ -9,6 +9,8 @@ import AdminPanel from "@/components/AdminPanel";
 import EmploymentRegistration from "@/components/EmploymentRegistration";
 import CheckRegistration from "@/components/CheckRegistration";
 import CategoryCard from "@/components/CategoryCard";
+import TranslatedText from "@/components/TranslatedText";
+import EditModeToggle from "@/components/EditModeToggle";
 interface Category {
   id: string;
   name: string;
@@ -99,9 +101,11 @@ const Index = () => {
   const renderHomeContent = () => {
     if (loading) {
       return <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
-          <div className="text-center">
+            <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <div className="text-foreground font-medium">Loading categories...</div>
+            <div className="text-foreground font-medium">
+              <TranslatedText id="common.loading" showMalayalam={false} />
+            </div>
           </div>
         </div>;
     }
@@ -112,26 +116,30 @@ const Index = () => {
           <div className="relative container mx-auto px-4 py-16 sm:py-24 bg-cyan-200">
             <div className="text-center animate-fade-in">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-poppins font-bold mb-6">
-                <span className="text-gradient">Transform Your Career</span>
+                <span className="text-gradient">
+                  <TranslatedText id="hero.title1" />
+                </span>
                 <br />
-                <span className="text-foreground">with E-Life Society</span>
+                <span className="text-foreground">
+                  <TranslatedText id="hero.title2" />
+                </span>
               </h1>
               <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-                Discover exclusive employment opportunities, professional development programs, and career advancement resources tailored to your success.
+                <TranslatedText id="hero.subtitle" />
               </p>
               
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12 animate-slide-up">
                 <Button onClick={() => navigate('/add-program')} className="text-lg px-8 py-4 h-auto bg-gradient-primary hover:shadow-glow transition-all duration-300 transform hover:scale-105">
                   <Plus className="h-5 w-5 mr-2" />
-                  Add New Program
+                  <TranslatedText id="hero.addNewProgram" showMalayalam={false} />
                 </Button>
                 <Button variant="outline" onClick={() => navigate('/all-programs')} className="text-lg px-8 py-4 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                   <Eye className="h-5 w-5 mr-2" />
-                  View All Programs
+                  <TranslatedText id="hero.viewAllPrograms" showMalayalam={false} />
                 </Button>
                 <Button variant="outline" onClick={() => setActiveTab("check")} className="text-lg px-8 py-4 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
                   <Users className="h-5 w-5 mr-2" />
-                  Check Status
+                  <TranslatedText id="hero.checkStatus" showMalayalam={false} />
                 </Button>
               </div>
             </div>
@@ -146,10 +154,10 @@ const Index = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="text-center mb-12 animate-fade-in">
             <h2 className="text-3xl sm:text-4xl font-poppins font-bold mb-4 text-foreground">
-              Employment <span className="text-gradient">Categories</span>
+              <TranslatedText id="categories.title" as="span" />
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-              Explore our comprehensive range of employment programs designed to match your skills and aspirations
+              <TranslatedText id="categories.subtitle" />
             </p>
           </div>
 
@@ -165,11 +173,15 @@ const Index = () => {
               <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                 <Briefcase className="h-12 w-12 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">No Categories Available</h3>
-              <p className="text-muted-foreground mb-6">Start by creating your first employment category</p>
+              <h3 className="text-xl font-semibold mb-2">
+                <TranslatedText id="categories.noCategories" />
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                <TranslatedText id="categories.noCategoriesDesc" />
+              </p>
               <Button onClick={() => setActiveTab("admin")} className="bg-gradient-primary hover:shadow-glow">
                 <Plus className="h-4 w-4 mr-2" />
-                Create Category
+                <TranslatedText id="categories.createCategory" showMalayalam={false} />
               </Button>
             </div>}
         </div>
@@ -188,40 +200,41 @@ const Index = () => {
     }
   };
   return <div className="min-h-screen bg-background">
+      <EditModeToggle />
       <nav className="bg-card/80 backdrop-blur-md border-b border-border/50 sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <h1 className="text-xl sm:text-2xl font-poppins font-bold bg-gradient-primary bg-clip-text text-transparent">
-              E-Life Society
+              <TranslatedText id="brand.name" showMalayalam={false} />
             </h1>
             <div className="hidden md:flex space-x-2">
               <Button variant={activeTab === "home" ? "default" : "ghost"} onClick={() => setActiveTab("home")} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "home" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
                 <Home className="h-4 w-4" />
-                Home
+                <TranslatedText id="nav.home" showMalayalam={false} />
               </Button>
               <Button variant="ghost" onClick={() => navigate('/all-programs')} className="flex items-center gap-2 hover:bg-primary/10 transition-all duration-200">
                 <List className="h-4 w-4" />
-                All Programs
+                <TranslatedText id="nav.allPrograms" showMalayalam={false} />
               </Button>
               <Button variant={activeTab === "check" ? "default" : "ghost"} onClick={() => setActiveTab("check")} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "check" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
                 <Users className="h-4 w-4" />
-                Check Status
+                <TranslatedText id="nav.checkStatus" showMalayalam={false} />
               </Button>
               {admin ? (
                 <>
                   <Button variant={activeTab === "admin" ? "default" : "ghost"} onClick={() => navigate('/admin')} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "admin" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
                     <Shield className="h-4 w-4" />
-                    Admin
+                    <TranslatedText id="nav.admin" showMalayalam={false} />
                   </Button>
                   <Button variant="outline" onClick={logout} className="flex items-center gap-2 hover:bg-destructive hover:text-destructive-foreground transition-all duration-200">
                     <LogOut className="h-4 w-4" />
-                    Logout
+                    <TranslatedText id="nav.logout" showMalayalam={false} />
                   </Button>
                 </>
               ) : (
                 <Button variant="outline" onClick={() => navigate('/admin/login')} className="flex items-center gap-2 hover:bg-primary/10 transition-all duration-200">
                   <Shield className="h-4 w-4" />
-                  Admin Login
+                  <TranslatedText id="nav.adminLogin" showMalayalam={false} />
                 </Button>
               )}
             </div>
