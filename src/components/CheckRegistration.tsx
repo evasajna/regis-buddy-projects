@@ -261,51 +261,9 @@ const CheckRegistration = () => {
   const applyForProgram = async (programId: string, programName: string) => {
     if (!clientData) return;
     
-    try {
-      // Check for dual registration prevention using mobile number
-      const { data: existingRegistrations } = await supabase
-        .from("employment_registrations")
-        .select("*")
-        .eq("mobile_number", clientData.mobile_number)
-        .not("status", "in", "(rejected,stopped)"); // Only count active registrations
-
-      if (existingRegistrations && existingRegistrations.length > 0) {
-        // Check if any existing registration has multi-program approval
-        const hasMultiApproval = existingRegistrations.some(reg => reg.status === 'multi_approved');
-        
-        if (!hasMultiApproval) {
-          // Show popup dialog instead of toast
-          setSelectedProgram({ id: programId, name: programName });
-          setShowApplicationDialog(true);
-          return;
-        }
-      }
-
-      const { error } = await supabase
-        .from('employment_registrations')
-        .insert({
-          client_id: clientData.id,
-          category_id: programId,
-          mobile_number: clientData.mobile_number
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Application Submitted",
-        description: `Your application for "${programName}" has been submitted successfully.`,
-      });
-
-      // Refresh registrations to show the new application
-      checkRegistrations();
-    } catch (error) {
-      console.error('Error applying for program:', error);
-      toast({
-        title: "Application Failed",
-        description: "Failed to submit your application. Please try again.",
-        variant: "destructive",
-      });
-    }
+    // Always show the dialog for experience and skills collection
+    setSelectedProgram({ id: programId, name: programName });
+    setShowApplicationDialog(true);
   };
 
   const requestStopProgram = async (registrationId: string, categoryName: string) => {
@@ -443,13 +401,19 @@ const CheckRegistration = () => {
                   <CardHeader>
                     <CardTitle className="text-lg">Personal Details</CardTitle>
                     <CardDescription>
-                      Your qualification: <Badge variant="outline">{clientData.category}</Badge>
-                      {(clientData.category?.toLowerCase().includes('job card') || 
-                        clientData.category?.toLowerCase().includes('others')) ? (
-                        <span className="text-green-600 ml-2">✓ Can apply to all programs (Special qualification)</span>
-                      ) : (
-                        <span className="text-amber-600 ml-2">⚠ Limited to category-specific programs</span>
-                      )}
+                      <div className="space-y-2">
+                        <div>
+                          Your qualification: <Badge variant="outline">{clientData.category}</Badge>
+                        </div>
+                        <div>
+                          {(clientData.category?.toLowerCase().includes('job card') || 
+                            clientData.category?.toLowerCase().includes('others')) ? (
+                            <span className="text-green-600">✓ Can apply to all programs (Special qualification)</span>
+                          ) : (
+                            <span className="text-amber-600">⚠ Limited to category-specific programs</span>
+                          )}
+                        </div>
+                      </div>
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
