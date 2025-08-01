@@ -11,7 +11,7 @@ const EditModeToggle: React.FC = () => {
       variant={isEditMode ? "default" : "outline"}
       size="sm"
       onClick={() => setEditMode(!isEditMode)}
-      className="fixed top-4 right-4 z-50 shadow-lg"
+      className="fixed top-20 right-4 z-50 shadow-lg bg-primary text-primary-foreground hover:bg-primary/90"
     >
       {isEditMode ? (
         <>
