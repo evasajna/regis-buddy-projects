@@ -261,7 +261,24 @@ const CheckRegistration = () => {
   const applyForProgram = async (programId: string, programName: string) => {
     if (!clientData) return;
     
-    // Always show the dialog for experience and skills collection
+    // Check for dual application blocking
+    if (registrations.length > 0) {
+      // Check if user already has any pending or approved registrations
+      const activeRegistrations = registrations.filter(reg => 
+        reg.status === 'pending' || reg.status === 'approved'
+      );
+      
+      if (activeRegistrations.length > 0) {
+        toast({
+          variant: "destructive",
+          title: "Dual Application Not Allowed",
+          description: `You already have ${activeRegistrations.length} active registration(s). You cannot apply for additional programs until your current registration is completed or you request a stop.`
+        });
+        return;
+      }
+    }
+    
+    // Show the dialog for experience and skills collection
     setSelectedProgram({ id: programId, name: programName });
     setShowApplicationDialog(true);
   };
