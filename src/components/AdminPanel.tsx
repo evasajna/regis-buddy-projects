@@ -17,6 +17,7 @@ import StopRequestsManagement from "./admin/StopRequestsManagement";
 import NotificationManager from "./admin/NotificationManager";
 import AdminManagement from "./admin/AdminManagement";
 import PermissionManager from "./admin/PermissionManager";
+import StoppedRegistrationsView from "./admin/StoppedRegistrationsView";
 
 const ApplicationsOverview = () => {
   const [totalApplications, setTotalApplications] = useState(0);
@@ -281,32 +282,46 @@ const AdminPanel = () => {
 
   const dashboardCards = [
     {
+      id: "applications",
+      title: "Applications",
+      icon: "📊",
+      description: "Applications overview",
+      bgColor: "bg-blue-500"
+    },
+    {
       id: "registrations",
       title: "Registrations",
       icon: "👥",
       description: "Manage employment registrations",
-      bgColor: "bg-blue-500"
+      bgColor: "bg-green-500"
+    },
+    {
+      id: "stopped-details",
+      title: "Stopped Details",
+      icon: "🛑",
+      description: "Stopped registrations",
+      bgColor: "bg-red-500"
     },
     {
       id: "categories", 
       title: "Categories",
       icon: "🏷️",
       description: "Employment categories",
-      bgColor: "bg-green-500"
+      bgColor: "bg-purple-500"
     },
     {
       id: "uploads",
       title: "Data Upload", 
       icon: "📁",
       description: "Upload client data",
-      bgColor: "bg-purple-500"
+      bgColor: "bg-orange-500"
     },
     {
       id: "stop-requests",
       title: "Stop Requests",
       icon: "⏹️", 
       description: "Handle stop requests",
-      bgColor: "bg-orange-500"
+      bgColor: "bg-yellow-500"
     },
     {
       id: "announcements",
@@ -320,7 +335,7 @@ const AdminPanel = () => {
       title: "Admin Control",
       icon: "🔐",
       description: "Administrative controls",
-      bgColor: "bg-red-500"
+      bgColor: "bg-gray-600"
     }
   ];
 
@@ -405,9 +420,15 @@ const AdminPanel = () => {
       </div>
 
       <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-6 mb-6">
+        <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-6">
+          <TabsTrigger value="applications" className="text-sm">
+            📊 Applications
+          </TabsTrigger>
           <TabsTrigger value="registrations" className="text-sm">
             👥 Registrations
+          </TabsTrigger>
+          <TabsTrigger value="stopped-details" className="text-sm">
+            🛑 Stopped Details
           </TabsTrigger>
           <TabsTrigger value="categories" className="text-sm">
             🏷️ Categories
@@ -444,6 +465,37 @@ const AdminPanel = () => {
         </TabsContent>
 
         
+        <TabsContent value="applications" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                📊 Applications Overview
+              </CardTitle>
+              <CardDescription>
+                Monitor and analyze all employment registration applications
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ApplicationsOverview />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="stopped-details" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                🛑 Stopped Registration Details
+              </CardTitle>
+              <CardDescription>
+                View and manage all stopped employment registrations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <StoppedRegistrationsView />
+            </CardContent>
+          </Card>
+        </TabsContent>
         <TabsContent value="categories" className="space-y-6">
           <Card>
             <CardHeader>
