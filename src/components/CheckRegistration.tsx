@@ -20,6 +20,8 @@ const CheckRegistration = () => {
   const [userNotifications, setUserNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
+  const [showBlockingDialog, setShowBlockingDialog] = useState(false);
+  const [blockingMessage, setBlockingMessage] = useState("");
   const [selectedProgram, setSelectedProgram] = useState<{id: string, name: string} | null>(null);
   const [experience, setExperience] = useState("");
   const [skills, setSkills] = useState("");
@@ -269,11 +271,9 @@ const CheckRegistration = () => {
       );
       
       if (activeRegistrations.length > 0) {
-        toast({
-          variant: "destructive",
-          title: "Dual Application Not Allowed",
-          description: `You already have ${activeRegistrations.length} active registration(s). You cannot apply for additional programs until your current registration is completed or you request a stop.`
-        });
+        const message = `You already have ${activeRegistrations.length} active registration(s). According to our dual application policy, you cannot apply for additional programs until your current registration is completed.\n\nTo apply for this program, please:\n1. Complete your current registration, or\n2. Request to stop your current registration using the "Request Stop/Multi-Program" button\n\nIf you believe this is an error, please contact our support team.`;
+        setBlockingMessage(message);
+        setShowBlockingDialog(true);
         return;
       }
     }
@@ -366,6 +366,8 @@ const CheckRegistration = () => {
     setClientData(null);
     setAvailablePrograms([]);
     setShowApplicationDialog(false);
+    setShowBlockingDialog(false);
+    setBlockingMessage("");
     setSelectedProgram(null);
     setExperience("");
     setSkills("");
@@ -722,6 +724,58 @@ const CheckRegistration = () => {
                 </Button>
                 <Button onClick={handleDialogApplication}>
                   Submit Application
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* Dual Application Blocking Dialog */}
+          <Dialog open={showBlockingDialog} onOpenChange={setShowBlockingDialog}>
+            <DialogContent className="max-w-lg">
+              <DialogHeader>
+                <DialogTitle className="text-xl text-red-600 flex items-center gap-2">
+                  🚫 Dual Application Not Allowed
+                </DialogTitle>
+                <DialogDescription>
+                  According to our employment registration policy
+                </DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                  <div className="space-y-3">
+                    <Textarea
+                      value={blockingMessage}
+                      onChange={(e) => setBlockingMessage(e.target.value)}
+                      className="min-h-[120px] border-red-200 focus:border-red-400"
+                      readOnly
+                    />
+                  </div>
+                </div>
+                
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <h4 className="font-medium text-blue-900 mb-2">💡 What you can do:</h4>
+                  <ul className="space-y-2 text-sm text-blue-800">
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span>Use the <strong>"Request Stop/Multi-Program"</strong> button in your registrations tab</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span>Complete your current program before applying for new ones</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600">•</span>
+                      <span>Contact support if you believe this is an error</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  onClick={() => setShowBlockingDialog(false)}
+                  className="w-full"
+                >
+                  I Understand
                 </Button>
               </DialogFooter>
             </DialogContent>
