@@ -70,9 +70,11 @@ export type Database = {
           category_id: string
           client_id: string
           created_at: string
+          experience: string | null
           id: string
           mobile_number: string
           registration_date: string
+          skills: string | null
           status: string | null
           updated_at: string
         }
@@ -80,9 +82,11 @@ export type Database = {
           category_id: string
           client_id: string
           created_at?: string
+          experience?: string | null
           id?: string
           mobile_number: string
           registration_date?: string
+          skills?: string | null
           status?: string | null
           updated_at?: string
         }
@@ -90,9 +94,11 @@ export type Database = {
           category_id?: string
           client_id?: string
           created_at?: string
+          experience?: string | null
           id?: string
           mobile_number?: string
           registration_date?: string
+          skills?: string | null
           status?: string | null
           updated_at?: string
         }

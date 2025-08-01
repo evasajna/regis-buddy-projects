@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Bell } from "lucide-react";
@@ -20,6 +21,8 @@ const CheckRegistration = () => {
   const [loading, setLoading] = useState(false);
   const [showApplicationDialog, setShowApplicationDialog] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState<{id: string, name: string} | null>(null);
+  const [experience, setExperience] = useState("");
+  const [skills, setSkills] = useState("");
   const { toast } = useToast();
 
   const fetchAvailablePrograms = async (client: any) => {
@@ -340,13 +343,24 @@ const CheckRegistration = () => {
   const handleDialogApplication = async () => {
     if (!selectedProgram || !clientData) return;
     
+    if (!experience.trim() || !skills.trim()) {
+      toast({
+        variant: "destructive",
+        title: "Missing Information",
+        description: "Please provide both experience and skills information."
+      });
+      return;
+    }
+    
     try {
       const { error } = await supabase
         .from('employment_registrations')
         .insert({
           client_id: clientData.id,
           category_id: selectedProgram.id,
-          mobile_number: clientData.mobile_number
+          mobile_number: clientData.mobile_number,
+          experience: experience.trim(),
+          skills: skills.trim()
         });
 
       if (error) throw error;
@@ -358,6 +372,8 @@ const CheckRegistration = () => {
 
       setShowApplicationDialog(false);
       setSelectedProgram(null);
+      setExperience("");
+      setSkills("");
       checkRegistrations();
     } catch (error) {
       console.error('Error applying for program:', error);
@@ -376,6 +392,8 @@ const CheckRegistration = () => {
     setAvailablePrograms([]);
     setShowApplicationDialog(false);
     setSelectedProgram(null);
+    setExperience("");
+    setSkills("");
   };
 
   return (
@@ -679,29 +697,50 @@ const CheckRegistration = () => {
 
           {/* Application Confirmation Dialog */}
           <Dialog open={showApplicationDialog} onOpenChange={setShowApplicationDialog}>
-            <DialogContent>
+            <DialogContent className="max-w-md">
               <DialogHeader>
-                <DialogTitle>Multiple Program Application</DialogTitle>
+                <DialogTitle>Apply for Program</DialogTitle>
                 <DialogDescription>
-                  You can only apply for one program at a time. You currently have an active registration.
+                  Please provide your experience and skills information to apply for "{selectedProgram?.name}".
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4">
-                <p className="text-sm text-muted-foreground mb-4">
-                  To proceed with applying for "{selectedProgram?.name}", you need to either:
+              <div className="space-y-4 py-4">
+                <div>
+                  <Label htmlFor="experience" className="text-sm font-medium">
+                    Experience *
+                  </Label>
+                  <Textarea
+                    id="experience"
+                    placeholder="Describe your relevant work experience..."
+                    value={experience}
+                    onChange={(e) => setExperience(e.target.value)}
+                    className="mt-1"
+                    rows={3}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="skills" className="text-sm font-medium">
+                    Skills *
+                  </Label>
+                  <Textarea
+                    id="skills"
+                    placeholder="List your relevant skills and capabilities..."
+                    value={skills}
+                    onChange={(e) => setSkills(e.target.value)}
+                    className="mt-1"
+                    rows={3}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  * Both fields are required to submit your application.
                 </p>
-                <ul className="list-disc list-inside space-y-2 text-sm">
-                  <li>Request to stop your current registration first</li>
-                  <li>Request multi-program approval from admin</li>
-                  <li>Or apply anyway (admin will review your case)</li>
-                </ul>
               </div>
               <DialogFooter className="gap-2">
                 <Button variant="outline" onClick={() => setShowApplicationDialog(false)}>
                   Cancel
                 </Button>
                 <Button onClick={handleDialogApplication}>
-                  Apply Anyway
+                  Submit Application
                 </Button>
               </DialogFooter>
             </DialogContent>
