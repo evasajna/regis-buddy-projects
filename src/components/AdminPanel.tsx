@@ -276,13 +276,132 @@ const ApplicationsOverview = () => {
 const AdminPanel = () => {
   const { admin, logout } = useAuth();
   const navigate = useNavigate();
+  const [activeView, setActiveView] = useState<string>("dashboard");
+
+  const dashboardCards = [
+    {
+      id: "registrations",
+      title: "Registrations",
+      icon: "👥",
+      description: "Manage employment registrations",
+      bgColor: "bg-blue-500"
+    },
+    {
+      id: "categories", 
+      title: "Categories",
+      icon: "🏷️",
+      description: "Employment categories",
+      bgColor: "bg-green-500"
+    },
+    {
+      id: "panchayaths",
+      title: "Panchayaths", 
+      icon: "🏛️",
+      description: "Location management",
+      bgColor: "bg-purple-500"
+    },
+    {
+      id: "announcements",
+      title: "Announcements",
+      icon: "📢", 
+      description: "System notifications",
+      bgColor: "bg-orange-500"
+    },
+    {
+      id: "utilities",
+      title: "Utilities",
+      icon: "⚙️",
+      description: "System utilities",
+      bgColor: "bg-teal-500"
+    },
+    {
+      id: "accounts",
+      title: "Accounts",
+      icon: "👤",
+      description: "User account management",
+      bgColor: "bg-indigo-500"
+    },
+    {
+      id: "reports",
+      title: "Reports", 
+      icon: "📊",
+      description: "Analytics and reports",
+      bgColor: "bg-red-500"
+    },
+    {
+      id: "admin-control",
+      title: "Admin Control",
+      icon: "🔐",
+      description: "Administrative controls",
+      bgColor: "bg-gray-600"
+    }
+  ];
+
+  const handleCardClick = (cardId: string) => {
+    setActiveView(cardId);
+  };
+
+  if (activeView === "dashboard") {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-sm text-gray-600">
+                Welcome back, <span className="font-medium">{admin?.username}</span>
+                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">SUPER ADMIN</span>
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">98</div>
+              <Button variant="destructive" onClick={logout} className="px-6">
+                Logout
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Dashboard Grid */}
+        <div className="p-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl">
+            {dashboardCards.map((card) => (
+              <Card 
+                key={card.id}
+                className="cursor-pointer hover:shadow-lg transition-shadow duration-200 border-0 shadow-md"
+                onClick={() => handleCardClick(card.id)}
+              >
+                <CardContent className="p-6 text-center">
+                  <div className={`w-16 h-16 ${card.bgColor} rounded-lg flex items-center justify-center mx-auto mb-4`}>
+                    <span className="text-2xl text-white">{card.icon}</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">{card.title}</h3>
+                  <p className="text-sm text-gray-600">{card.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6">
       <div className="mb-8">
         <div className="flex justify-between items-center">
           <div>
-            <h2 className="text-4xl font-bold text-primary mb-2">Admin Panel</h2>
+            <Button 
+              variant="outline" 
+              onClick={() => setActiveView("dashboard")}
+              className="mb-4"
+            >
+              ← Back to Dashboard
+            </Button>
+            <h2 className="text-4xl font-bold text-primary mb-2">
+              {dashboardCards.find(c => c.id === activeView)?.title || "Admin Panel"}
+            </h2>
             <p className="text-lg text-muted-foreground">Comprehensive management system for self-employment registration</p>
           </div>
           <div className="flex gap-2">
@@ -296,16 +415,9 @@ const AdminPanel = () => {
             </Button>
           </div>
         </div>
-        {admin && (
-          <div className="mt-4 p-3 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
-              Logged in as: <span className="font-medium text-foreground">{admin.username}</span>
-            </p>
-          </div>
-        )}
       </div>
 
-      <Tabs defaultValue="applications" className="w-full">
+      <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
         <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
           <TabsTrigger value="applications" className="text-sm">
             📊 Applications
@@ -322,13 +434,13 @@ const AdminPanel = () => {
           <TabsTrigger value="stop-requests" className="text-sm">
             ⏹️ Stop Requests
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="text-sm">
+          <TabsTrigger value="announcements" className="text-sm">
             🔔 Notifications
           </TabsTrigger>
           <TabsTrigger value="admin-mgmt" className="text-sm">
             🔧 Admin Mgmt
           </TabsTrigger>
-          <TabsTrigger value="permissions" className="text-sm">
+          <TabsTrigger value="admin-control" className="text-sm">
             🔐 Permissions
           </TabsTrigger>
         </TabsList>
@@ -414,7 +526,7 @@ const AdminPanel = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="notifications" className="space-y-6">
+        <TabsContent value="announcements" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -446,7 +558,7 @@ const AdminPanel = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="permissions" className="space-y-6">
+        <TabsContent value="admin-control" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">

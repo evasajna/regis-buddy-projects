@@ -44,6 +44,7 @@ interface Registration {
 const RegistrationsView = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [filteredRegistrations, setFilteredRegistrations] = useState<Registration[]>([]);
+  const [stoppedApplications, setStoppedApplications] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(false);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [filterStatus, setFilterStatus] = useState<string>("all");
@@ -51,6 +52,7 @@ const RegistrationsView = () => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [categories, setCategories] = useState<any[]>([]);
   const [panchayaths, setPanchayaths] = useState<string[]>([]);
+  const [showStoppedApplications, setShowStoppedApplications] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -60,6 +62,7 @@ const RegistrationsView = () => {
 
   useEffect(() => {
     applyFilters();
+    applyStopped();
   }, [registrations, filterCategory, filterStatus, filterPanchayath, searchTerm]);
 
   const fetchRegistrations = async () => {
@@ -150,6 +153,9 @@ const RegistrationsView = () => {
   const applyFilters = () => {
     let filtered = registrations;
 
+    // Filter out stopped applications from main list
+    filtered = filtered.filter(reg => reg.status !== 'stopped' && reg.status !== 'stop_requested');
+
     if (filterCategory !== "all") {
       filtered = filtered.filter(reg => reg.employment_categories?.name === filterCategory);
     }
@@ -172,6 +178,12 @@ const RegistrationsView = () => {
     }
 
     setFilteredRegistrations(filtered);
+  };
+
+  const applyStopped = () => {
+    // Filter stopped applications
+    const stopped = registrations.filter(reg => reg.status === 'stopped' || reg.status === 'stop_requested');
+    setStoppedApplications(stopped);
   };
 
   const exportToExcel = () => {
@@ -582,6 +594,97 @@ const RegistrationsView = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Stopped Applications Section */}
+      {stoppedApplications.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <XCircle className="h-5 w-5 text-red-500" />
+                  Stopped Applications ({stoppedApplications.length})
+                </CardTitle>
+                <CardDescription>
+                  Applications that have been stopped or requested to be stopped
+                </CardDescription>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowStoppedApplications(!showStoppedApplications)}
+              >
+                {showStoppedApplications ? 'Hide' : 'Show'} Stopped Applications
+              </Button>
+            </div>
+          </CardHeader>
+          {showStoppedApplications && (
+            <CardContent>
+              <div className="rounded-md border overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Customer ID</TableHead>
+                      <TableHead>Mobile</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>District</TableHead>
+                      <TableHead>Panchayath</TableHead>
+                      <TableHead>Registration Date</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {stoppedApplications.map((registration) => (
+                      <TableRow key={registration.id} className="bg-red-50">
+                        <TableCell className="font-medium">
+                          {registration.registered_clients?.name}
+                        </TableCell>
+                        <TableCell>{registration.registered_clients?.customer_id}</TableCell>
+                        <TableCell>{registration.mobile_number}</TableCell>
+                        <TableCell>{registration.employment_categories?.name}</TableCell>
+                        <TableCell>{registration.registered_clients?.district}</TableCell>
+                        <TableCell>{registration.registered_clients?.panchayath || 'N/A'}</TableCell>
+                        <TableCell>
+                          {new Date(registration.registration_date).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Badge variant="destructive">
+                            <span className="flex items-center gap-1">
+                              <XCircle className="h-3 w-3" />
+                              {registration.status}
+                            </span>
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex gap-1 flex-wrap">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-600 border-green-600 hover:bg-green-50"
+                              onClick={() => updateRegistrationStatus(registration.id, "pending")}
+                            >
+                              Reactivate
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-red-600 border-red-600 hover:bg-red-50"
+                              onClick={() => deleteRegistration(registration.id)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          )}
+        </Card>
+      )}
     </div>
   );
 };
