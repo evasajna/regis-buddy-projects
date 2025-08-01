@@ -80,21 +80,21 @@ const TranslatedText: React.FC<TranslatedTextProps> = ({
 
   const content = showMalayalam ? (
     <span className="inline-flex flex-col">
-      <span className="text-xs leading-tight opacity-75">{translation.malayalam}</span>
-      <span className="font-medium">{translation.english}</span>
+      <span className="text-xs leading-tight opacity-75 cursor-pointer">{translation.malayalam}</span>
+      <span className="font-medium cursor-pointer">{translation.english}</span>
     </span>
   ) : (
-    <span>{translation.english}</span>
+    <span className="cursor-pointer">{translation.english}</span>
   );
 
   return (
-    <Component className={`${className} ${isEditMode && translation.editable ? 'relative group' : ''}`}>
+    <Component className={`${className} ${isEditMode && translation.editable ? 'relative group cursor-pointer border border-dashed border-transparent hover:border-primary/50 hover:bg-primary/5 p-1 rounded' : ''}`}>
       {content}
       {isEditMode && translation.editable && (
         <Button
           size="sm"
           variant="ghost"
-          className="absolute -top-1 -right-1 h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute -top-2 -right-2 h-5 w-5 p-0 opacity-70 hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full"
           onClick={handleEdit}
         >
           <Edit className="h-3 w-3" />
