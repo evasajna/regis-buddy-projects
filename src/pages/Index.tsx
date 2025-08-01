@@ -203,10 +203,6 @@ const Index = () => {
                 <List className="h-4 w-4" />
                 All Programs
               </Button>
-              <Button variant={activeTab === "register" ? "default" : "ghost"} onClick={() => setActiveTab("register")} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "register" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
-                <Briefcase className="h-4 w-4" />
-                Register
-              </Button>
               <Button variant={activeTab === "check" ? "default" : "ghost"} onClick={() => setActiveTab("check")} className={`flex items-center gap-2 transition-all duration-200 ${activeTab === "check" ? "bg-gradient-primary text-primary-foreground shadow-md" : "hover:bg-primary/10"}`}>
                 <Users className="h-4 w-4" />
                 Check Status
@@ -237,9 +233,6 @@ const Index = () => {
               </Button>
               <Button variant="ghost" onClick={() => navigate('/all-programs')} size="sm" className="hover:bg-primary/10">
                 <List className="h-4 w-4" />
-              </Button>
-              <Button variant={activeTab === "register" ? "default" : "ghost"} onClick={() => setActiveTab("register")} size="sm" className={activeTab === "register" ? "bg-gradient-primary" : "hover:bg-primary/10"}>
-                <Briefcase className="h-4 w-4" />
               </Button>
               <Button variant={activeTab === "check" ? "default" : "ghost"} onClick={() => setActiveTab("check")} size="sm" className={activeTab === "check" ? "bg-gradient-primary" : "hover:bg-primary/10"}>
                 <Users className="h-4 w-4" />
