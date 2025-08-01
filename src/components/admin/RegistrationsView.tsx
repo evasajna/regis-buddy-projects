@@ -17,6 +17,8 @@ interface Registration {
   mobile_number: string;
   registration_date: string;
   status: string;
+  experience?: string;
+  skills?: string;
   panchayath?: string;
   registered_clients: {
     name: string;
@@ -179,6 +181,8 @@ const RegistrationsView = () => {
       'Mobile Number': reg.mobile_number || '',
       'Category': reg.employment_categories?.name || '',
       'Available Programs': reg.available_programs?.map(p => p.name).join(', ') || 'None',
+      'Experience': reg.experience || 'Not provided',
+      'Skills': reg.skills || 'Not provided',
       'District': reg.registered_clients?.district || '',
       'Panchayath': reg.registered_clients?.panchayath || '',
       'Agent': reg.registered_clients?.agent_pro || '',
@@ -211,6 +215,8 @@ const RegistrationsView = () => {
       reg.mobile_number || '',
       reg.employment_categories?.name || '',
       reg.available_programs?.map(p => p.name).join(', ') || 'None',
+      (reg.experience || 'Not provided').substring(0, 50) + (reg.experience && reg.experience.length > 50 ? '...' : ''),
+      (reg.skills || 'Not provided').substring(0, 50) + (reg.skills && reg.skills.length > 50 ? '...' : ''),
       reg.registered_clients?.district || '',
       reg.registered_clients?.panchayath || '',
       new Date(reg.registration_date).toLocaleDateString(),
@@ -219,21 +225,23 @@ const RegistrationsView = () => {
 
     // Add table
     (doc as any).autoTable({
-      head: [['Name', 'Customer ID', 'Mobile', 'Category', 'Programs', 'District', 'Panchayath', 'Date', 'Status']],
+      head: [['Name', 'Customer ID', 'Mobile', 'Category', 'Programs', 'Experience', 'Skills', 'District', 'Panchayath', 'Date', 'Status']],
       body: tableData,
       startY: 45,
-      styles: { fontSize: 8 },
+      styles: { fontSize: 7 },
       headStyles: { fillColor: [52, 152, 219] },
       columnStyles: {
-        0: { cellWidth: 25 },
-        1: { cellWidth: 20 },
-        2: { cellWidth: 20 },
-        3: { cellWidth: 25 },
-        4: { cellWidth: 30 },
-        5: { cellWidth: 20 },
-        6: { cellWidth: 20 },
+        0: { cellWidth: 20 },
+        1: { cellWidth: 18 },
+        2: { cellWidth: 16 },
+        3: { cellWidth: 18 },
+        4: { cellWidth: 25 },
+        5: { cellWidth: 25 },
+        6: { cellWidth: 25 },
         7: { cellWidth: 15 },
-        8: { cellWidth: 15 }
+        8: { cellWidth: 15 },
+        9: { cellWidth: 12 },
+        10: { cellWidth: 12 }
       }
     });
     
@@ -460,6 +468,8 @@ const RegistrationsView = () => {
                     <TableHead>Mobile</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Available Programs</TableHead>
+                    <TableHead>Experience</TableHead>
+                    <TableHead>Skills</TableHead>
                     <TableHead>District</TableHead>
                     <TableHead>Panchayath</TableHead>
                     <TableHead>Agent</TableHead>
@@ -494,6 +504,16 @@ const RegistrationsView = () => {
                         ) : (
                           <span className="text-muted-foreground text-sm">No programs</span>
                         )}
+                      </TableCell>
+                      <TableCell className="max-w-32">
+                        <div className="text-sm text-muted-foreground truncate" title={registration.experience || 'Not provided'}>
+                          {registration.experience || 'Not provided'}
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-32">
+                        <div className="text-sm text-muted-foreground truncate" title={registration.skills || 'Not provided'}>
+                          {registration.skills || 'Not provided'}
+                        </div>
                       </TableCell>
                       <TableCell>{registration.registered_clients?.district}</TableCell>
                       <TableCell>{registration.registered_clients?.panchayath || 'N/A'}</TableCell>
