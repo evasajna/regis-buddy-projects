@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Users, Clock, CheckCircle, XCircle, Download, Search, FileText } from "lucide-react";
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -224,7 +224,7 @@ const RegistrationsView = () => {
     ]);
 
     // Add table
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [['Name', 'Customer ID', 'Mobile', 'Category', 'Programs', 'Experience', 'Skills', 'District', 'Panchayath', 'Date', 'Status']],
       body: tableData,
       startY: 45,

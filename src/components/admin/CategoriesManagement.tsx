@@ -225,56 +225,56 @@ const CategoriesManagement = () => {
                     Add Category
                   </Button>
                 </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingCategory ? "Edit Category" : "Add New Category"}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {editingCategory 
-                      ? "Update the category details below" 
-                      : "Create a new employment category"}
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="name">Category Name</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g., farmelife, entrelife"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="description">Description</Label>
-                    <Textarea
-                      id="description"
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      placeholder="Brief description of this employment category"
-                    />
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Switch
-                      id="is_active"
-                      checked={formData.is_active}
-                      onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
-                    />
-                    <Label htmlFor="is_active">Active</Label>
-                  </div>
-                  <div className="flex justify-end gap-2">
-                    <Button type="button" variant="outline" onClick={closeDialog}>
-                      Cancel
-                    </Button>
-                    <Button type="submit">
-                      {editingCategory ? "Update" : "Create"}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>
+                      {editingCategory ? "Edit Category" : "Add New Category"}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {editingCategory 
+                        ? "Update the category details below" 
+                        : "Create a new employment category"}
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div>
+                      <Label htmlFor="name">Category Name</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                        placeholder="e.g., farmelife, entrelife"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="Brief description of this employment category"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="is_active"
+                        checked={formData.is_active}
+                        onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                      />
+                      <Label htmlFor="is_active">Active</Label>
+                    </div>
+                    <div className="flex justify-end gap-2">
+                      <Button type="button" variant="outline" onClick={closeDialog}>
+                        Cancel
+                      </Button>
+                      <Button type="submit">
+                        {editingCategory ? "Update" : "Create"}
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </CardHeader>
@@ -312,14 +312,26 @@ const CategoriesManagement = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => openDialog(category)}
+                            onClick={() => {
+                              setEditingCategory(category);
+                              setFormData({
+                                name: category.name,
+                                description: category.description || "",
+                                is_active: category.is_active
+                              });
+                              setDialogOpen(true);
+                            }}
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
                           <Button
                             variant="destructive"
                             size="sm"
-                            onClick={() => deleteCategory(category.id)}
+                            onClick={() => {
+                              if (confirm("Are you sure you want to delete this category?")) {
+                                deleteCategory(category.id);
+                              }
+                            }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
