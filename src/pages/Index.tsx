@@ -115,8 +115,8 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5"></div>
           <div className="relative container mx-auto px-4 py-16 sm:py-24">
             <div className="text-center animate-fade-in">
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-poppins font-bold mb-6">
-                <span className="text-gradient">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-poppins font-bold mb-6">
+                <span className="text-primary font-extrabold">
                   <TranslatedText id="hero.title1" />
                 </span>
                 <br />
@@ -124,22 +124,22 @@ const Index = () => {
                   <TranslatedText id="hero.title2" />
                 </span>
               </h1>
-              <p className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
                 <TranslatedText id="hero.subtitle" />
               </p>
               
               <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12 animate-slide-up">
-                <Button onClick={() => navigate('/add-program')} className="text-lg px-8 py-4 h-auto bg-gradient-primary hover:shadow-glow transition-all duration-300 transform hover:scale-105">
-                  <Plus className="h-5 w-5 mr-2" />
-                  <TranslatedText id="hero.addNewProgram" showMalayalam={false} />
+                <Button onClick={() => navigate('/add-program')} className="text-base px-6 py-3 h-auto bg-gradient-primary hover:shadow-glow transition-all duration-300 transform hover:scale-105">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <TranslatedText id="hero.addNewProgram" />
                 </Button>
-                <Button variant="outline" onClick={() => navigate('/all-programs')} className="text-lg px-8 py-4 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                  <Eye className="h-5 w-5 mr-2" />
-                  <TranslatedText id="hero.viewAllPrograms" showMalayalam={false} />
+                <Button variant="outline" onClick={() => navigate('/all-programs')} className="text-base px-6 py-3 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                  <Eye className="h-4 w-4 mr-2" />
+                  <TranslatedText id="hero.viewAllPrograms" />
                 </Button>
-                <Button variant="outline" onClick={() => setActiveTab("check")} className="text-lg px-8 py-4 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
-                  <Users className="h-5 w-5 mr-2" />
-                  <TranslatedText id="hero.checkStatus" showMalayalam={false} />
+                <Button variant="outline" onClick={() => setActiveTab("check")} className="text-base px-6 py-3 h-auto border-2 hover:bg-primary hover:text-primary-foreground transition-all duration-300">
+                  <Users className="h-4 w-4 mr-2" />
+                  <TranslatedText id="hero.checkStatus" />
                 </Button>
               </div>
             </div>
