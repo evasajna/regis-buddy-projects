@@ -113,7 +113,7 @@ const Index = () => {
         {/* Hero Section */}
         <div className="relative overflow-hidden bg-gradient-hero">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5"></div>
-          <div className="relative container mx-auto px-4 py-16 sm:py-24 bg-cyan-200">
+          <div className="relative container mx-auto px-4 py-16 sm:py-24">
             <div className="text-center animate-fade-in">
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-poppins font-bold mb-6">
                 <span className="text-gradient">

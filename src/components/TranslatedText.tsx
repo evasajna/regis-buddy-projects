@@ -32,6 +32,12 @@ const TranslatedText: React.FC<TranslatedTextProps> = ({
     setIsEditing(true);
   };
 
+  const handleTextClick = () => {
+    if (isEditMode && translation.editable && !isEditing) {
+      handleEdit();
+    }
+  };
+
   const handleSave = () => {
     updateTranslation(id, editEnglish, editMalayalam);
     setIsEditing(false);
@@ -79,23 +85,26 @@ const TranslatedText: React.FC<TranslatedTextProps> = ({
   }
 
   const content = showMalayalam ? (
-    <span className="inline-flex flex-col">
+    <span className="inline-flex flex-col" onClick={handleTextClick}>
       <span className="text-xs leading-tight opacity-75 cursor-pointer">{translation.malayalam}</span>
       <span className="font-medium cursor-pointer">{translation.english}</span>
     </span>
   ) : (
-    <span className="cursor-pointer">{translation.english}</span>
+    <span className="cursor-pointer" onClick={handleTextClick}>{translation.english}</span>
   );
 
   return (
-    <Component className={`${className} ${isEditMode && translation.editable ? 'relative group cursor-pointer border border-dashed border-transparent hover:border-primary/50 hover:bg-primary/5 p-1 rounded' : ''}`}>
+    <Component className={`${className} ${isEditMode && translation.editable ? 'relative group cursor-pointer border border-dashed border-transparent hover:border-primary/50 hover:bg-primary/5 p-1 rounded transition-all duration-200' : ''}`}>
       {content}
       {isEditMode && translation.editable && (
         <Button
           size="sm"
           variant="ghost"
           className="absolute -top-2 -right-2 h-5 w-5 p-0 opacity-70 hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full"
-          onClick={handleEdit}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEdit();
+          }}
         >
           <Edit className="h-3 w-3" />
         </Button>
