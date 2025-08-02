@@ -115,14 +115,8 @@ const Index = () => {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/5"></div>
           <div className="relative container mx-auto px-4 py-16 sm:py-24">
             <div className="text-center animate-fade-in">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-poppins font-bold mb-6">
-                <span className="text-primary font-extrabold">
-                  <TranslatedText id="hero.title1" />
-                </span>
-                <br />
-                <span className="text-foreground">
-                  <TranslatedText id="hero.title2" />
-                </span>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-poppins font-bold mb-6 text-primary">
+                <TranslatedText id="hero.newTitle" />
               </h1>
               <p className="text-base sm:text-lg text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
                 <TranslatedText id="hero.subtitle" />
